@@ -25,16 +25,9 @@ defineProps<{
             <div class="absolute inset-0 bg-zinc-900" />
 
             <div class="flex flex-col justify-center items-center h-full">
-                <img src="/img/logo3.png" alt="" class="w-90 -translate-y-30 z-20">
-                <h1 class="text-neutral-300 text-6xl -translate-y-20 font-montserrat z-20">Tamaulipas</h1>
-            </div>
-            <div v-if="quote" class="relative z-20 mt-auto">
-                <blockquote class="space-y-2">
-                    <p class="text-lg">&ldquo;{{ quote.message }}&rdquo;</p>
-                    <footer class="text-sm text-neutral-300">
-                        {{ quote.author }}
-                    </footer>
-                </blockquote>
+                <img src="/img/logo3.png" alt="" class="w-90 -translate-y-20 z-20">
+                <h1 class="display-7 -translate-y-10 z-20">Tamaulipas</h1>
+                <h2 class="display-8 -translate-y-10 z-20">Gobierno del Estado</h2>
             </div>
         </div>
         <div class="lg:p-8">

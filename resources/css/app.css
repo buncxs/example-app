@@ -7,21 +7,11 @@
 
 @custom-variant dark (&:is(.dark *));
 
-@font-face {
-  font-family: 'Montserrat';
-  src: url('/resources/fonts/montserrat/Montserrat-VariableFont_wght.ttf') format('truetype');
-  font-weight: 100 900;
-  font-style: normal;
-}
-
 @theme inline {
     --font-sans:
         Instrument Sans, ui-sans-serif, system-ui, sans-serif,
         'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
         'Noto Color Emoji';
-
-    --font-montserrat: 
-        Montserrat, sans-serif;
     
     --radius-lg: var(--radius);
     --radius-md: calc(var(--radius) - 2px);
