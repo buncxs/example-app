@@ -12,7 +12,7 @@ const props = defineProps<AppLogoProps>()
 
 <template>
     <img 
-    :src="props.src ?? '/images/logo.png'" 
+    :src="props.src ?? '/img/logo.png'" 
     :alt="props.alt ?? 'Logo del sistema'" 
     class="mx-auto filter grayscale" 
     :class="props.size ?? 'h-12 w-12'">
