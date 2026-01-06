@@ -17,3 +17,5 @@ const props = defineProps<AppLogoProps>()
     class="mx-auto filter grayscale" 
     :class="props.size ?? 'h-12 w-12'">
 </template>
+
+
