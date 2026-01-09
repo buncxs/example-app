@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import PaddingContainer from '@/components/PaddingContainer.vue';
 import DataTable from '@/components/ui/datatable/DataTable.vue';
 import { Input } from '@/components/ui/input';
 import LinkButton from '@/components/ui/link/LinkButton.vue';
@@ -30,25 +29,29 @@ interface DataTableExpose {
 }
 
 // Crea una referencia al componente hijo para poder manipular su estado interno (como filtros)
-const dataTableRef = ref<ComponentPublicInstance & DataTableExpose | null>(null);
-
+const dataTableRef = ref<(ComponentPublicInstance & DataTableExpose) | null>(
+    null,
+);
 </script>
 
 <template>
     <Head title="Usuarios" />
     <AppLayout :breadcrumbs="breadcrumbs">
-        <PaddingContainer>
-            <div class="mt-3 flex justify-between">
+            <div class="flex justify-between">
                 <Input
                     class="max-w-sm"
                     placeholder="Buscar nombre..."
                     :model-value="
                         // Lee el valor del filtro directamente desde la columna 'name' de la tabla
-                        dataTableRef?.table.getColumn('name')?.getFilterValue() as string ?? ''
+                        (dataTableRef?.table
+                            .getColumn('name')
+                            ?.getFilterValue() as string) ?? ''
                     "
                     @update:model-value="
                         // Actualiza el filtro de la columna cada vez que el usuario escribe
-                        dataTableRef?.table.getColumn('name')?.setFilterValue($event)
+                        dataTableRef?.table
+                            .getColumn('name')
+                            ?.setFilterValue($event)
                     "
                 />
                 <LinkButton :href="users.create()">+ Nuevo</LinkButton>
@@ -60,6 +63,5 @@ const dataTableRef = ref<ComponentPublicInstance & DataTableExpose | null>(null)
                 :data="data"
                 class="mt-3"
             />
-        </PaddingContainer>
     </AppLayout>
 </template>

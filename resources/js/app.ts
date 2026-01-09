@@ -27,7 +27,6 @@ z.setErrorMap(zodI18nMap);
 // -----------------------------------
 
 
-
 createInertiaApp({
     title: (title) => (title ? `${title} - ${appName}` : appName),
     resolve: (name) =>

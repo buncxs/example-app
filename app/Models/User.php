@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -10,7 +11,26 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
-    use HasFactory, Notifiable, TwoFactorAuthenticatable;
+    use HasFactory, Notifiable, TwoFactorAuthenticatable, HasUuids;
+
+    /**
+     * Define cuáles columnas deben recibir un UUID automático.
+     * Por defecto Laravel busca una columna llamada 'id', 
+     * pero como existe ID Dual, hay que especificarlo.
+     */
+    public function uniqueIds(): array
+    {
+        return ['uuid']; 
+    }
+
+    /**
+     * Esto le dice a Laravel (y a Inertia) que cuando busque un usuario
+     * en la ruta, use la columna 'uuid' en lugar del 'id'.
+     */
+    public function getRouteKeyName(): string
+    {
+        return 'uuid';
+    }
 
     protected $fillable = [
         'name',
