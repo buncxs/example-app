@@ -1,8 +1,5 @@
 <script setup lang="ts">
 import AppLogo4T from '@/components/AppLogo4T.vue';
-import { usePage } from '@inertiajs/vue3';
-
-const page = usePage();
 
 
 defineProps<{

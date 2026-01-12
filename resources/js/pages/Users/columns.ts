@@ -42,10 +42,9 @@ export const columns: ColumnDef<User>[] = [
                         icon: Trash2,
                         requiresConfirmation: true,
                         callback: () => {
-                            (router.delete(users.destroy(user.uuid)),
-                                {
-                                    preserveScroll: true,
-                                });
+                            router.delete(users.destroy(user.uuid).url, {
+                                preserveScroll: true,
+                            });
                         },
                     },
                 ],
