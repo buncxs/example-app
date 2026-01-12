@@ -13,10 +13,14 @@ import {
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
 import users from '@/routes/users';
+import roles from '@/routes/roles'
 import { type NavItem } from '@/types';
-import { Link } from '@inertiajs/vue3';
-import { BookOpen, Folder, LayoutGrid, Users } from 'lucide-vue-next';
+import { Link, usePage } from '@inertiajs/vue3';
+import { BookOpen, Folder, LayoutGrid, Users, Shield } from 'lucide-vue-next';
 import AppLogo from './AppLogo.vue';
+
+const page = usePage();
+
 
 const mainNavItems: NavItem[] = [
     {
@@ -28,6 +32,13 @@ const mainNavItems: NavItem[] = [
         title: 'Usuarios',
         href: users.index(),
         icon: Users,
+        isActive: page.url.startsWith('/users'),
+    },
+    {
+        title: 'Roles',
+        href: roles.index(),
+        icon: Shield,
+        isActive: page.url.startsWith('/roles'),
     },
 ];
 

@@ -16,17 +16,17 @@ import LinkButton from '@/components/ui/link/LinkButton.vue';
 
 
 // Configuración de Tabla y Rutas
-import { columns } from '@/pages/Users/columns';
-import users from '@/routes/users';
+import { columns } from '@/pages/Roles/columns';
+import roles from '@/routes/roles';
 
 // Tipado TypeScript
 import { type BreadcrumbItem } from '@/types';
-import type { User } from '@/types/models/User';
+import type { Role } from '@/types/models/Role';
 
 /* --- PROPS Y TIPOS --- */
-// Recibe la colección de usuarios desde el controlador de Laravel
+// Recibe la colección de roles desde el controlador de Laravel
 defineProps<{
-    data: User[];
+    data: Role[];
 }>();
 
 // Interfaz para exponer la API interna de TanStack Table desde el componente DataTable
@@ -37,8 +37,8 @@ interface DataTableExpose {
 /* --- ESTADO Y CONFIGURACIÓN --- */
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'Usuarios',
-        href: users.index.url(),
+        title: 'Roles',
+        href: roles.index.url(),
     },
 ];
 
@@ -58,12 +58,12 @@ const setSearchValue = (value: string | number) => {
 </script>
 
 <template>
-    <Head title="Usuarios" />
+    <Head title="Roles" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <Heading
-            title="Usuarios"
-            description="Gestión de perfiles y asignación de roles del sistema"
+            title="Roles"
+            description="Gestión de roles del sistema"
         />
 
         <div class="flex items-center justify-between gap-4 mt-6">
@@ -79,7 +79,7 @@ const setSearchValue = (value: string | number) => {
                 </div>
             </div>
 
-            <LinkButton :href="users.create()">
+            <LinkButton :href="roles.create()">
                 + Nuevo
             </LinkButton>
         </div>

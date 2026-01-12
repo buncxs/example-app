@@ -35,7 +35,6 @@ const user = page.props.auth.user;
 <template>
     <AppLayout :breadcrumbs="breadcrumbItems">
         <Head title="Configuracion de perfil" />
-
         <SettingsLayout>
             <div class="flex flex-col space-y-6">
                 <HeadingSmall

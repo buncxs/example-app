@@ -83,7 +83,7 @@ defineExpose({ table })
 <template>   
     <div class="overflow-x-auto rounded-lg bg-white shadow-md">
         <Table>
-            <TableHeader class="bg-black [&>tr:hover]:bg-inherit">
+            <TableHeader class="bg-black dark:bg-zinc-800 [&>tr:hover]:bg-inherit">
                 <TableRow
                     v-for="headerGroup in table.getHeaderGroups()"
                     :key="headerGroup.id"

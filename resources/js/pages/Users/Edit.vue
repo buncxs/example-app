@@ -1,73 +1,76 @@
 <script setup lang="ts">
-// --- 1. Imports de Librerías Externas ---
 import { Head, router, usePage } from '@inertiajs/vue3';
 import { toTypedSchema } from '@vee-validate/zod';
+import { Eye, EyeOff } from 'lucide-vue-next';
 import { useForm } from 'vee-validate';
 import { ref, watch } from 'vue';
-import * as z from 'zod'; // Importación estándar de Zod
+import * as z from 'zod';
 
-// --- 2. Iconos ---
-import { Eye, EyeOff } from 'lucide-vue-next';
-
-// --- 3. Componentes de UI (Shadcn) ---
+import Heading from '@/components/Heading.vue';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import {
     Field,
+    FieldDescription,
     FieldError,
     FieldGroup,
     FieldLabel,
 } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
-
-// --- 4. Componentes Propios y Layouts ---
 import AppLayout from '@/layouts/AppLayout.vue';
 import users from '@/routes/users';
-
-// --- 5. Tipos ---
-import Heading from '@/components/Heading.vue';
 import { type BreadcrumbItem } from '@/types';
+import { User } from '@/types/models/User';
 
-// Configuración de la línea de tiempo/navegación
+// Recibimos al usuario como Prop
+const props = defineProps<{
+    user: User;
+}>();
+
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Usuarios', href: users.index().url },
-    { title: 'Crear usuarios', href: users.create().url },
+    { title: 'Editar usuario', href: '#' },
 ];
 
-/**
- * Lógica de visibilidad para las contraseñas
- */
 const showPassword = ref(false);
 const showConfirmPassword = ref(false);
 
 /**
- * Esquema de validación con Zod.
- * .refine() se utiliza para comparar campos entre sí (validación cruzada).
+ * Esquema de validación:
+ * En edición, la contraseña suele ser opcional.
  */
+
+const passwordSchema = z
+    .string()
+    .min(8, 'Debe tener al menos 8 caracteres')
+    .regex(/[a-zA-Z]/, 'Debe contener al menos una letra')
+    .regex(/[0-9]/, 'Debe contener al menos un número');
 
 const formSchema = toTypedSchema(
-    z.object({
-        name: z.string().min(5),
-        email: z.string().email(),
-        password: z.string().optional().or(z.literal('')), // Opcional en edición
-        password_confirmation: z.string().optional().or(z.literal('')),
-    }).refine((data) => data.password === data.password_confirmation, {
-        message: "Las contraseñas no coinciden",
-        path: ["password_confirmation"],
-    })
+    z
+        .object({
+            name: z.string().min(5),
+            email: z.string().email(),
+            password: z.union([z.literal(''), passwordSchema]).optional(),
+            // Confirmación también acepta string vacío inicialmente
+            password_confirmation: z.string().optional().or(z.literal('')),
+        })
+        .refine((values) => values.password === values.password_confirmation, {
+            message: 'Las contraseñas no coinciden',
+            path: ['password_confirmation'], // El error se mostrará en este campo específico
+        }),
 );
 
-/**
- * Inicialización de Vee-Validate con el esquema de Zod.
- */
 const { handleSubmit, errors, defineField, setErrors, resetForm } = useForm({
     validationSchema: formSchema,
+    // Pre-rellenamos el formulario con los datos del prop
+    initialValues: {
+        name: props.user.name,
+        email: props.user.email,
+        password: '',
+        password_confirmation: '',
+    },
 });
-
-/**
- * Definir los campos
- * Props contiene los eventos (blur, input)
- */
 
 const [name, nameProps] = defineField('name', { validateOnModelUpdate: false });
 const [email, emailProps] = defineField('email', {
@@ -81,12 +84,9 @@ const [password_confirmation, password_confirmationProps] = defineField(
     { validateOnModelUpdate: false },
 );
 
-/**
- * Manejador de envío del formulario.
- * Solo se ejecuta si todas las validaciones de Zod pasan correctamente.
- */
 const onSubmit = handleSubmit((values) => {
-    router.post(users.store().url, values);
+    // Usamos el UUID para la ruta y el método PUT/PATCH
+    router.put(users.update(props.user.uuid).url, values);
 });
 
 // Observar los errores que vienen desde el servidor (Laravel)
@@ -103,12 +103,13 @@ watch(
 </script>
 
 <template>
-    <Head title="Crear usuario" />
+    <Head title="Editar usuario" />
     <AppLayout :breadcrumbs="breadcrumbs">
         <Heading
-            title="Nuevo usuario"
-            description="Registra una cuenta para dar acceso a la plataforma"
+            :title="`Editar: ${user.name}`"
+            description="Modifica la información de la cuenta"
         />
+
         <form @submit.prevent="onSubmit">
             <Card>
                 <CardContent class="space-y-4 pt-6">
@@ -121,11 +122,11 @@ watch(
                                 id="name"
                                 v-model="name"
                                 v-bind="nameProps"
-                                placeholder="Ingresa tu nombre"
                                 :class="{ 'border-destructive': errors.name }"
                             />
-                            <FieldError> {{ errors.name }} </FieldError>
+                            <FieldError>{{ errors.name }}</FieldError>
                         </Field>
+
                         <Field>
                             <FieldLabel for="email"
                                 >Correo Electrónico</FieldLabel
@@ -135,11 +136,11 @@ watch(
                                 type="email"
                                 v-model="email"
                                 v-bind="emailProps"
-                                placeholder="Ingresa tu nombre"
                                 :class="{ 'border-destructive': errors.email }"
                             />
-                            <FieldError> {{ errors.email }} </FieldError>
+                            <FieldError>{{ errors.email }}</FieldError>
                         </Field>
+
                         <Field>
                             <FieldLabel for="password">Contraseña</FieldLabel>
                             <div class="relative">
@@ -148,23 +149,26 @@ watch(
                                     id="password"
                                     v-model="password"
                                     v-bind="passwordProps"
-                                    placeholder="Ingresa tu nombre"
                                     :class="{
                                         'border-destructive': errors.password,
                                     }"
                                 />
                                 <button
                                     type="button"
-                                    class="absolute top-1/2 right-3 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground"
+                                    class="absolute top-1/2 right-3 -translate-y-1/2"
                                     @click="showPassword = !showPassword"
                                 >
                                     <Eye v-if="!showPassword" class="h-4 w-4" />
                                     <EyeOff v-else class="h-4 w-4" />
                                 </button>
                             </div>
-
-                            <FieldError> {{ errors.password }} </FieldError>
+                            <FieldDescription
+                                >(Dejar en blanco para no
+                                cambiar)</FieldDescription
+                            >
+                            <FieldError>{{ errors.password }}</FieldError>
                         </Field>
+
                         <Field>
                             <FieldLabel for="password_confirmation"
                                 >Confirmar contraseña</FieldLabel
@@ -179,7 +183,6 @@ watch(
                                     id="password_confirmation"
                                     v-model="password_confirmation"
                                     v-bind="password_confirmationProps"
-                                    placeholder="Ingresa tu nombre"
                                     :class="{
                                         'border-destructive':
                                             errors.password_confirmation,
@@ -187,7 +190,7 @@ watch(
                                 />
                                 <button
                                     type="button"
-                                    class="absolute top-1/2 right-3 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground"
+                                    class="absolute top-1/2 right-3 -translate-y-1/2"
                                     @click="
                                         showConfirmPassword =
                                             !showConfirmPassword
@@ -200,9 +203,13 @@ watch(
                                     <EyeOff v-else class="h-4 w-4" />
                                 </button>
                             </div>
-                            <FieldError>
-                                {{ errors.password_confirmation }}
-                            </FieldError>
+                            <FieldDescription
+                                >(Dejar en blanco para no
+                                cambiar)</FieldDescription
+                            >
+                            <FieldError>{{
+                                errors.password_confirmation
+                            }}</FieldError>
                         </Field>
                     </FieldGroup>
                 </CardContent>
@@ -214,7 +221,7 @@ watch(
                     >
                         Cancelar
                     </Button>
-                    <Button type="submit">Aceptar</Button>
+                    <Button type="submit">Guardar Cambios</Button>
                 </CardFooter>
             </Card>
         </form>

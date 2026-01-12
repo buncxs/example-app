@@ -1,11 +1,11 @@
 <script setup lang="ts">
+import { Toaster } from '@/components/ui/sonner';
 import AppLayout from '@/layouts/app/AppSidebarLayout.vue';
 import type { BreadcrumbItemType } from '@/types';
 import { usePage } from '@inertiajs/vue3';
-import { watch } from 'vue';
-import 'vue-sonner/style.css'
-import { Toaster } from '@/components/ui/sonner';
+import { watch, nextTick } from 'vue';
 import { toast } from 'vue-sonner';
+import 'vue-sonner/style.css';
 
 interface Props {
     breadcrumbs?: BreadcrumbItemType[];
@@ -24,22 +24,29 @@ withDefaults(defineProps<Props>(), {
 const page = usePage();
 
 watch(
-    () => page.props.flash as FlashMessages,
-    (flash) => {
-        if (flash?.success) {
-            toast.success(flash.success);
-        }
-        if (flash?.error) {
-            toast.error(flash.error);
+    () => page.props.flash as unknown as FlashMessages,
+    async (newFlash) => {
+        // Usamos una comprobación estricta
+        if (newFlash && typeof newFlash === 'object') {
+
+            // Esperamos a que el Toaster esté montado en el DOM
+            await nextTick();
+
+            if (newFlash.success) {
+                toast.success(newFlash.success);
+            }
+            if (newFlash.error) {
+                toast.error(newFlash.error);
+            }
         }
     },
-    { deep: true },
+    { deep: true, immediate: true },
 );
 </script>
 
 <template>
     <AppLayout :breadcrumbs="breadcrumbs">
         <slot />
-        <Toaster rich-colors close-button/>
+        <Toaster rich-colors close-button :visible-toasts="3"/>
     </AppLayout>
 </template>

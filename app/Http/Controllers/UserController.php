@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreUserRequest;
+use App\Http\Requests\User\UpdateUserRequest;
+use App\Http\Requests\User\StoreUserRequest;
 use App\Models\User;
 use App\Services\UserService;
-use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class UserController extends Controller
@@ -22,7 +22,7 @@ class UserController extends Controller
      */
     public function index()
     {
-        $data = User::select('id', 'name', 'email')->get();
+        $data = User::select('id', 'uuid', 'name', 'email')->get();
         return Inertia::render('Users/Index', [
             'data' => $data,
         ]);
@@ -42,8 +42,7 @@ class UserController extends Controller
     public function store(StoreUserRequest $request)
     {
         User::create($request->validated());
-        return redirect()->route('users.index')
-        ->with('success', 'Usuario creado con exito');
+        return redirect()->route('users.index')->with('success', 'Usuario creado con exito');
     }
 
     /**
@@ -57,24 +56,29 @@ class UserController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit(User $user)
     {
-        //
+        return Inertia::render('Users/Edit', [
+            'user' => $user
+        ]);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(UpdateUserRequest $request, User $user)
     {
-        //
+        $user->update($request->validated());
+        return redirect()->route('users.index')
+        ->with('success', "El usuario {$user->name} ha sido actualizado");
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(User $user)
     {
-        return redirect()->back()->with('success', 'Registro eliminado correctamente');
+        $user->delete();
+        return redirect()->back()->with('success', 'Usuario eliminado correctamente');
     }
 }

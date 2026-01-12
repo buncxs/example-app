@@ -8,10 +8,10 @@ import { h } from 'vue';
 
 export const columns: ColumnDef<User>[] = [
     {
-        accessorKey: 'id',
-        header: () => h('div', { class: 'text-center font-bold' }, 'Id'),
+        id: 'index',
+        header: () => h('div', { class: 'text-center font-bold' }, 'No'),
         cell: ({ row }) =>
-            h('div', { class: 'text-center' }, row.getValue('id')),
+            h('div', { class: 'text-center' }, row.index + 1),
     },
     {
         accessorKey: 'name',
@@ -35,18 +35,16 @@ export const columns: ColumnDef<User>[] = [
                     {
                         label: 'Editar',
                         icon: Edit,
-                        href: users.edit(user.id).url,
+                        href: users.edit(user.uuid).url,
                     },
                     {
                         label: 'Eliminar',
                         icon: Trash2,
                         requiresConfirmation: true,
                         callback: () => {
-                            (router.delete(users.destroy(user.id)),
+                            (router.delete(users.destroy(user.uuid)),
                                 {
                                     preserveScroll: true,
-                                    onSuccess: () =>
-                                        console.log('borrado con exito'),
                                 });
                         },
                     },
