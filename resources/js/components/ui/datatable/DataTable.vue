@@ -1,5 +1,6 @@
-<script setup lang="ts" generic="TData, TValue">
+<script setup lang="ts" generic="TData extends { id: string | number }, TValue">
 import { valueUpdater } from '@/lib/utils';
+
 import type {
     ColumnDef,
     ColumnFiltersState,
@@ -25,10 +26,15 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
+import Pagination from '../pagination/Pagination.vue';
 
 const props = defineProps<{
     columns: ColumnDef<TData, TValue>[];
     data: TData[];
+    paginationData: {
+        links: any;
+        meta: any;
+    };
 }>();
 
 const sorting = ref<SortingState>([]);
@@ -37,6 +43,7 @@ const columnVisibility = ref<VisibilityState>({});
 const rowSelection = ref({});
 const expanded = ref<ExpandedState>({});
 
+
 const table = useVueTable({
     get data() {
         return props.data;
@@ -44,6 +51,12 @@ const table = useVueTable({
     get columns() {
         return props.columns;
     },
+    defaultColumn: {
+        minSize: 50,
+        maxSize: 800,
+    },
+
+    getRowId: (row) => (row as any).id.toString(),
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
@@ -72,18 +85,22 @@ const table = useVueTable({
         get expanded() {
             return expanded.value;
         },
-        pagination: { pageIndex: 0, pageSize: 10 },
+        pagination: { pageIndex: (props.paginationData?.meta.current_page ?? 1) -1, 
+                      pageSize: props.paginationData?.meta.per_page ?? 10 },
     },
+    manualPagination: true,
+    pageCount: props.paginationData?.meta.last_page ?? 1,
 });
 
-defineExpose({ table })
-
+defineExpose({ table });
 </script>
 
-<template>   
+<template>
     <div class="overflow-x-auto rounded-lg bg-white shadow-md">
         <Table>
-            <TableHeader class="bg-black dark:bg-zinc-800 [&>tr:hover]:bg-inherit">
+            <TableHeader
+                class="bg-black dark:bg-zinc-800 [&>tr:hover]:bg-inherit"
+            >
                 <TableRow
                     v-for="headerGroup in table.getHeaderGroups()"
                     :key="headerGroup.id"
@@ -92,6 +109,7 @@ defineExpose({ table })
                         v-for="header in headerGroup.headers"
                         :key="header.id"
                         class="px-6 py-2 text-xs font-medium tracking-wider text-white uppercase"
+                        :style="{ width: `${header.getSize()}px` }"
                     >
                         <FlexRender
                             v-if="!header.isPlaceholder"
@@ -117,6 +135,7 @@ defineExpose({ table })
                             v-for="cell in row.getVisibleCells()"
                             :key="cell.id"
                             class="px-6 py-2 text-sm whitespace-nowrap text-gray-800"
+                            :style="{ width: `${cell.column.getSize()}px` }"
                         >
                             <FlexRender
                                 :render="cell.column.columnDef.cell"
@@ -128,37 +147,17 @@ defineExpose({ table })
                 <template v-else>
                     <TableRow>
                         <TableCell :colspan="columns.length" class="h-24">
-                            No results.
+                            Sin resultados.
                         </TableCell>
                     </TableRow>
                 </template>
             </TableBody>
         </Table>
         <!-- Controles de paginación -->
-        <div
-            v-if="table.getPageCount() > 1"
-            class="flex items-center justify-between border-t bg-gray-50 px-4 py-2"
-        >
-            <div class="flex gap-2">
-                <button
-                    class="rounded bg-gray-200 px-3 py-1 text-sm disabled:opacity-50"
-                    :disabled="!table.getCanPreviousPage()"
-                    @click="table.previousPage()"
-                >
-                    Anterior
-                </button>
-                <button
-                    class="rounded bg-gray-200 px-3 py-1 text-sm disabled:opacity-50"
-                    :disabled="!table.getCanNextPage()"
-                    @click="table.nextPage()"
-                >
-                    Siguiente
-                </button>
-            </div>
-            <span class="text-sm text-gray-600">
-                Página {{ table.getState().pagination.pageIndex + 1 }} de
-                {{ table.getPageCount() }}
-            </span>
-        </div>
+        <Pagination 
+            v-if="paginationData"
+            :links="paginationData.links"
+            :meta="paginationData.meta"
+        />
     </div>
 </template>

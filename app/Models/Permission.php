@@ -3,21 +3,21 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Spatie\Permission\Models\Permission as SpatieRole;
+use Spatie\Permission\Traits\HasPermissions;
 
-use Spatie\Permission\Models\Permission as SpatiePermission;
-
-class Permission extends SpatiePermission
+class Permission extends SpatieRole
 {
-
-    use HasUuids;
+    use HasUuids, HasPermissions;
 
     public function uniqueIds(): array
     {
-        return ['uuid'];
+        return ['uuid']; 
     }
 
     public function getRouteKeyName(): string
     {
         return 'uuid';
     }
+
 }

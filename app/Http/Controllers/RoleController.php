@@ -4,8 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Role\StoreRoleRequest;
 use App\Http\Requests\Role\UpdateRoleRequest;
+use App\Http\Resources\RoleResource;
 use App\Models\Role;
-use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class RoleController extends Controller
@@ -15,9 +15,13 @@ class RoleController extends Controller
      */
     public function index()
     {
-        $data = Role::select('id', 'uuid', 'name')->get();
+        $roles = Role::select('id', 'uuid', 'name')
+        ->with(['permissions' => function ($query) {
+            $query->select('permissions.id', 'permissions.name');
+        }])->paginate(10)->withQueryString(); 
+        
         return Inertia::render('Roles/Index', [
-            'data' => $data,
+            'roles' => RoleResource::collection($roles),
         ]);
     }
 
@@ -36,14 +40,6 @@ class RoleController extends Controller
     {
         Role::create($request->validated());
         return redirect()->route('roles.index')->with('success', 'Rol creado con exito');
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
     }
 
     /**
@@ -69,8 +65,9 @@ class RoleController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Role $role)
     {
-        //
+        $role->delete();
+        return redirect()->back()->with('success', 'Rol eliminado correctamente');
     }
 }

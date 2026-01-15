@@ -1,12 +1,12 @@
 import DataTableCellActions from '@/components/ui/datatable/DataTableCellActions.vue';
-import roles from '@/routes/roles';
-import { Role } from '@/types/models/Role';
+import permissions from '@/routes/permissions';
+import { Permission } from '@/types/models/Permission';
 import { router } from '@inertiajs/vue3';
 import { ColumnDef } from '@tanstack/vue-table';
 import { Edit, Trash2 } from 'lucide-vue-next';
 import { h } from 'vue';
 
-export const columns: ColumnDef<Role>[] = [
+export const columns: ColumnDef<Permission>[] = [
     {
         id: 'index',
         header: () => h('div', { class: 'text-center font-bold' }, 'No'),
@@ -15,13 +15,13 @@ export const columns: ColumnDef<Role>[] = [
     },
     {
         accessorKey: 'name',
-        header: () => h('div', { class: ' font-bold text-left' }, 'Nombre'),
+        header: () => h('div', { class: ' font-bold' }, 'Nombre'),
         cell: ({ row }) => h('div', { class: '' }, row.getValue('name')),
     },
     {
         id: 'actions',
         cell: ({ row }) => {
-            const role = row.original;
+            const permission = row.original;
 
             return h('div', { class: 'flex justify-center' }, [
                 h(DataTableCellActions, {
@@ -30,14 +30,14 @@ export const columns: ColumnDef<Role>[] = [
                         {
                             label: 'Editar',
                             icon: Edit,
-                            href: roles.edit(role.id).url,
+                            href: permissions.edit(permission.uuid).url,
                         },
                         {
                             label: 'Eliminar',
                             icon: Trash2,
                             requiresConfirmation: true,
                             callback: () => {
-                                router.delete(roles.destroy(role.id), {
+                                router.delete(permissions.destroy(permission.uuid), {
                                     preserveScroll: true,
                                 });
                             },

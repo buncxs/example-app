@@ -14,9 +14,10 @@ import {
 import { dashboard } from '@/routes';
 import users from '@/routes/users';
 import roles from '@/routes/roles'
+import permissions from '@/routes/permissions'
 import { type NavItem } from '@/types';
 import { Link, usePage } from '@inertiajs/vue3';
-import { BookOpen, Folder, LayoutGrid, Users, Shield } from 'lucide-vue-next';
+import { BookOpen, Folder, LayoutGrid, Users, Shield, KeySquare } from 'lucide-vue-next';
 import AppLogo from './AppLogo.vue';
 
 const page = usePage();
@@ -39,6 +40,12 @@ const mainNavItems: NavItem[] = [
         href: roles.index(),
         icon: Shield,
         isActive: page.url.startsWith('/roles'),
+    },
+    {
+        title: 'Permisos',
+        href: permissions.index(),
+        icon: KeySquare,
+        isActive: page.url.startsWith('/permissions'),
     },
 ];
 

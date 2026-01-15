@@ -100,6 +100,7 @@ watch(
                             <FieldError> {{ errors.name }} </FieldError>
                         </Field>
                     </FieldGroup>
+                    
                 </CardContent>
                 <CardFooter class="flex justify-end gap-3 border-t py-4">
                     <Button

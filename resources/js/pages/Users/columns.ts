@@ -12,6 +12,7 @@ export const columns: ColumnDef<User>[] = [
         header: () => h('div', { class: 'text-center font-bold' }, 'No'),
         cell: ({ row }) =>
             h('div', { class: 'text-center' }, row.index + 1),
+        size: 10,
     },
     {
         accessorKey: 'name',
@@ -50,5 +51,6 @@ export const columns: ColumnDef<User>[] = [
                 ],
             });
         },
+        size: 40,
     },
 ];

@@ -1,11 +1,12 @@
 <script setup lang="ts">
+// --- 1. Imports de Librerías Externas ---
 import { Head, router, usePage } from '@inertiajs/vue3';
 import { toTypedSchema } from '@vee-validate/zod';
 import { useForm } from 'vee-validate';
 import { watch } from 'vue';
-import * as z from 'zod';
+import * as z from 'zod'; // Importación estándar de Zod
 
-import Heading from '@/components/Heading.vue';
+// --- 2. Componentes de UI (Shadcn) ---
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import {
@@ -15,23 +16,24 @@ import {
     FieldLabel,
 } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
+
+// --- 3. Componentes Propios y Layouts ---
 import AppLayout from '@/layouts/AppLayout.vue';
-import roles from '@/routes/roles';
+import permissions from '@/routes/permissions';
+
+// --- 4. Tipos ---
+import Heading from '@/components/Heading.vue';
 import { type BreadcrumbItem } from '@/types';
-import { Role } from '@/types/models/Role';
 
-// Recibimos al usuario como Prop
-const props = defineProps<{
-    role: Role;
-}>();
-
+// Configuración de la línea de tiempo/navegación
 const breadcrumbs: BreadcrumbItem[] = [
-    { title: 'Roles', href: roles.index().url },
-    { title: 'Editar rol', href: '#' },
+    { title: 'Permisos', href: permissions.index().url },
+    { title: 'Crear Permiso', href: permissions.create().url },
 ];
 
 /**
- * Esquema de validación:
+ * Esquema de validación con Zod.
+ * .refine() se utiliza para comparar campos entre sí (validación cruzada).
  */
 
 const formSchema = toTypedSchema(
@@ -40,19 +42,26 @@ const formSchema = toTypedSchema(
     }),
 );
 
+/**
+ * Inicialización de Vee-Validate con el esquema de Zod.
+ */
 const { handleSubmit, errors, defineField, setErrors, resetForm } = useForm({
     validationSchema: formSchema,
-    // Pre-rellenamos el formulario con los datos del prop
-    initialValues: {
-        name: props.role.name,
-    },
 });
+
+/**
+ * Definir los campos
+ * Props contiene los eventos (blur, input)
+ */
 
 const [name, nameProps] = defineField('name', { validateOnModelUpdate: false });
 
+/**
+ * Manejador de envío del formulario.
+ * Solo se ejecuta si todas las validaciones de Zod pasan correctamente.
+ */
 const onSubmit = handleSubmit((values) => {
-    // Usamos el UUID para la ruta y el método PUT/PATCH
-    router.put(roles.update(props.role.uuid).url, values);
+    router.post(permissions.store().url, values);
 });
 
 // Observar los errores que vienen desde el servidor (Laravel)
@@ -69,13 +78,12 @@ watch(
 </script>
 
 <template>
-    <Head title="Editar rol" />
+    <Head title="Crear permiso" />
     <AppLayout :breadcrumbs="breadcrumbs">
         <Heading
-            :title="`Editar: ${role.name}`"
-            description="Modifica la información del rol"
+            title="Nuevo permiso"
+            description="Configura un nuevo permiso"
         />
-
         <form @submit.prevent="onSubmit">
             <Card>
                 <CardContent class="space-y-4 pt-6">
@@ -86,9 +94,10 @@ watch(
                                 id="name"
                                 v-model="name"
                                 v-bind="nameProps"
+                                placeholder="Nombre de permiso"
                                 :class="{ 'border-destructive': errors.name }"
                             />
-                            <FieldError>{{ errors.name }}</FieldError>
+                            <FieldError> {{ errors.name }} </FieldError>
                         </Field>
                     </FieldGroup>
                 </CardContent>
@@ -100,7 +109,7 @@ watch(
                     >
                         Cancelar
                     </Button>
-                    <Button type="submit">Guardar Cambios</Button>
+                    <Button type="submit">Aceptar</Button>
                 </CardFooter>
             </Card>
         </form>

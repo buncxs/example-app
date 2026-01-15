@@ -16,18 +16,18 @@ import {
 } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import AppLayout from '@/layouts/AppLayout.vue';
-import roles from '@/routes/roles';
+import permissions from '@/routes/permissions';
 import { type BreadcrumbItem } from '@/types';
-import { Role } from '@/types/models/Role';
+import { Permission } from '@/types/models/Permission';
 
 // Recibimos al usuario como Prop
 const props = defineProps<{
-    role: Role;
+    permission: Permission;
 }>();
 
 const breadcrumbs: BreadcrumbItem[] = [
-    { title: 'Roles', href: roles.index().url },
-    { title: 'Editar rol', href: '#' },
+    { title: 'Permisos', href: permissions.index().url },
+    { title: 'Editar permiso', href: '#' },
 ];
 
 /**
@@ -44,7 +44,7 @@ const { handleSubmit, errors, defineField, setErrors, resetForm } = useForm({
     validationSchema: formSchema,
     // Pre-rellenamos el formulario con los datos del prop
     initialValues: {
-        name: props.role.name,
+        name: props.permission.name,
     },
 });
 
@@ -52,7 +52,7 @@ const [name, nameProps] = defineField('name', { validateOnModelUpdate: false });
 
 const onSubmit = handleSubmit((values) => {
     // Usamos el UUID para la ruta y el método PUT/PATCH
-    router.put(roles.update(props.role.uuid).url, values);
+    router.put(permissions.update(props.permission.uuid).url, values);
 });
 
 // Observar los errores que vienen desde el servidor (Laravel)
@@ -69,11 +69,11 @@ watch(
 </script>
 
 <template>
-    <Head title="Editar rol" />
+    <Head title="Editar permiso" />
     <AppLayout :breadcrumbs="breadcrumbs">
         <Heading
-            :title="`Editar: ${role.name}`"
-            description="Modifica la información del rol"
+            :title="`Editar: ${permission.name}`"
+            description="Modifica la información del permiso"
         />
 
         <form @submit.prevent="onSubmit">

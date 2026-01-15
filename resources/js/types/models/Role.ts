@@ -1,7 +1,7 @@
 export interface Role {
 
-    id: number,
-    uuid: string,
+    id: string,
     name: string,
+    permissions?: string[],
     
 }
