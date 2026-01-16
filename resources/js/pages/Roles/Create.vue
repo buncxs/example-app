@@ -3,7 +3,7 @@
 import { Head, router, usePage } from '@inertiajs/vue3';
 import { toTypedSchema } from '@vee-validate/zod';
 import { useForm } from 'vee-validate';
-import { watch } from 'vue';
+import { ref, watch } from 'vue';
 import * as z from 'zod'; // Importación estándar de Zod
 
 // --- 2. Componentes de UI (Shadcn) ---
@@ -31,6 +31,7 @@ const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Crear Roles', href: roles.create().url },
 ];
 
+
 /**
  * Esquema de validación con Zod.
  * .refine() se utiliza para comparar campos entre sí (validación cruzada).
@@ -39,14 +40,26 @@ const breadcrumbs: BreadcrumbItem[] = [
 const formSchema = toTypedSchema(
     z.object({
         name: z.string().min(4),
+        
     }),
 );
 
 /**
  * Inicialización de Vee-Validate con el esquema de Zod.
  */
-const { handleSubmit, errors, defineField, setErrors, resetForm } = useForm({
+const {
+    handleSubmit,
+    errors,
+    defineField,
+    setErrors,
+    resetForm,
+    setFieldValue,
+    values,
+} = useForm({
     validationSchema: formSchema,
+    initialValues: {
+        name: '',
+    },
 });
 
 /**
@@ -55,6 +68,7 @@ const { handleSubmit, errors, defineField, setErrors, resetForm } = useForm({
  */
 
 const [name, nameProps] = defineField('name', { validateOnModelUpdate: false });
+
 
 /**
  * Manejador de envío del formulario.
@@ -100,7 +114,6 @@ watch(
                             <FieldError> {{ errors.name }} </FieldError>
                         </Field>
                     </FieldGroup>
-                    
                 </CardContent>
                 <CardFooter class="flex justify-end gap-3 border-t py-4">
                     <Button

@@ -41,12 +41,6 @@ const mainNavItems: NavItem[] = [
         icon: Shield,
         isActive: page.url.startsWith('/roles'),
     },
-    {
-        title: 'Permisos',
-        href: permissions.index(),
-        icon: KeySquare,
-        isActive: page.url.startsWith('/permissions'),
-    },
 ];
 
 const footerNavItems: NavItem[] = [

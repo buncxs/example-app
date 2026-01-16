@@ -20,6 +20,6 @@ Route::get('dashboard', function () {
 
 Route::resource('users', UserController::class)->except(['show']);
 Route::resource('roles', RoleController::class)->except(['show']);
-Route::resource('permissions', PermissionController::class)->except(['show']);
+
 
 require __DIR__.'/settings.php';
