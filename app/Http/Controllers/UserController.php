@@ -22,7 +22,7 @@ class UserController extends Controller
      */
     public function index()
     {
-        $data = User::select('id', 'uuid', 'name', 'email')->get();
+        $data = User::select('uuid', 'name', 'email')->get();
         return Inertia::render('Users/Index', [
             'data' => $data,
         ]);

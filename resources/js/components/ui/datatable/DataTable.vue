@@ -1,4 +1,4 @@
-<script setup lang="ts" generic="TData extends { id: string | number }, TValue">
+<script setup lang="ts" generic="TData extends  Record<string, any> & { uuid: string }, TValue">
 import { valueUpdater } from '@/lib/utils';
 
 import type {
@@ -56,7 +56,7 @@ const table = useVueTable({
         maxSize: 800,
     },
 
-    getRowId: (row) => (row as any).id.toString(),
+    getRowId: (row) => row.uuid,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getFilteredRowModel: getFilteredRowModel(),

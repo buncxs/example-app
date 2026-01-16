@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Role\StoreRoleRequest;
 use App\Http\Requests\Role\UpdateRoleRequest;
+use App\Http\Resources\PermissionResource;
 use App\Http\Resources\RoleResource;
 use App\Models\Permission;
 use App\Models\Role;
@@ -31,7 +32,15 @@ class RoleController extends Controller
      */
     public function create()
     {
-        return Inertia::render('Roles/Create');
+        $permissionsSql = Permission::select('id', 'uuid', 'name', 'module')->get();
+
+        $permissions = collect(PermissionResource::collection($permissionsSql)
+            ->resolve())
+            ->groupBy('module');
+
+        return Inertia::render('Roles/Create', [
+            'permissions' => $permissions,
+        ]);
     }
 
     /**

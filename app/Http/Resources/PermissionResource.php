@@ -15,9 +15,11 @@ class PermissionResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id' => $this->uuid,
+            'uuid' => $this->uuid,
             'name' => $this->name,
             'module' => $this->module,
+            'display_name' => str_contains($this->name, '.') ?
+            explode('.', $this->name)[1] : $this->name
         ];
     }
 }
