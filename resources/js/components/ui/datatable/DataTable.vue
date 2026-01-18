@@ -1,4 +1,4 @@
-<script setup lang="ts" generic="TData extends  Record<string, any> & { uuid: string }, TValue">
+<script setup lang="ts" generic="TData extends  { uuid: string }, TValue">
 import { valueUpdater } from '@/lib/utils';
 
 import type {
@@ -85,11 +85,14 @@ const table = useVueTable({
         get expanded() {
             return expanded.value;
         },
-        pagination: { pageIndex: (props.paginationData?.meta.current_page ?? 1) -1, 
-                      pageSize: props.paginationData?.meta.per_page ?? 10 },
+        // USA EL ENCADENAMIENTO OPCIONAL (?.) Y VALORES POR DEFECTO (??) AQUÍ:
+        pagination: { 
+            pageIndex: (props.paginationData?.meta?.current_page ?? 1) - 1, 
+            pageSize: props.paginationData?.meta?.per_page ?? 10 
+        },
     },
     manualPagination: true,
-    pageCount: props.paginationData?.meta.last_page ?? 1,
+    pageCount: props.paginationData?.meta?.last_page ?? 1,
 });
 
 defineExpose({ table });

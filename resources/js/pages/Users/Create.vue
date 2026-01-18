@@ -49,8 +49,8 @@ const formSchema = toTypedSchema(
     z.object({
         name: z.string().min(5),
         email: z.string().email(),
-        password: z.string().optional().or(z.literal('')), // Opcional en edición
-        password_confirmation: z.string().optional().or(z.literal('')),
+        password: z.string().min(8),
+        password_confirmation: z.string().min(1, 'Debes confirmar la contraseña'),
     }).refine((data) => data.password === data.password_confirmation, {
         message: "Las contraseñas no coinciden",
         path: ["password_confirmation"],
@@ -121,7 +121,7 @@ watch(
                                 id="name"
                                 v-model="name"
                                 v-bind="nameProps"
-                                placeholder="Ingresa tu nombre"
+                                placeholder="Ej: Juan Pérez"
                                 :class="{ 'border-destructive': errors.name }"
                             />
                             <FieldError> {{ errors.name }} </FieldError>
@@ -135,7 +135,7 @@ watch(
                                 type="email"
                                 v-model="email"
                                 v-bind="emailProps"
-                                placeholder="Ingresa tu nombre"
+                                placeholder="usuario@ejemplo.com"
                                 :class="{ 'border-destructive': errors.email }"
                             />
                             <FieldError> {{ errors.email }} </FieldError>
@@ -148,7 +148,7 @@ watch(
                                     id="password"
                                     v-model="password"
                                     v-bind="passwordProps"
-                                    placeholder="Ingresa tu nombre"
+                                    placeholder="Mínimo 8 caracteres"
                                     :class="{
                                         'border-destructive': errors.password,
                                     }"
@@ -179,7 +179,7 @@ watch(
                                     id="password_confirmation"
                                     v-model="password_confirmation"
                                     v-bind="password_confirmationProps"
-                                    placeholder="Ingresa tu nombre"
+                                    placeholder="Confirmar contraseña"
                                     :class="{
                                         'border-destructive':
                                             errors.password_confirmation,
@@ -208,15 +208,16 @@ watch(
                 </CardContent>
                 <CardFooter class="flex justify-end gap-3 border-t py-4">
                     <Button
-                        variant="outline"
+                        variant="ghost"
                         type="button"
                         @click="resetForm()"
                     >
                         Cancelar
                     </Button>
-                    <Button type="submit">Aceptar</Button>
+                    <Button type="submit" class="min-w-[120px] shadow-xl shadow-primary/20">Aceptar</Button>
                 </CardFooter>
             </Card>
+            
         </form>
     </AppLayout>
 </template>

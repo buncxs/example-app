@@ -25,14 +25,21 @@ import type { User } from '@/types/models/User';
 
 /* --- PROPS Y TIPOS --- */
 // Recibe la colección de usuarios desde el controlador de Laravel
-defineProps<{
-    data: User[];
+const props = defineProps<{
+    items: PaginatedData<User>;
 }>();
 
 // Interfaz para exponer la API interna de TanStack Table desde el componente DataTable
 interface DataTableExpose {
     table: Table<any>;
 }
+
+interface PaginatedData<T> {
+    data: T[];
+    links: any;
+    meta: any;
+}
+
 
 /* --- ESTADO Y CONFIGURACIÓN --- */
 const breadcrumbs: BreadcrumbItem[] = [
@@ -55,6 +62,8 @@ const getSearchValue = () => {
 const setSearchValue = (value: string | number) => {
     dataTableRef.value?.table.getColumn('name')?.setFilterValue(value);
 };
+
+
 </script>
 
 <template>
@@ -79,7 +88,7 @@ const setSearchValue = (value: string | number) => {
                 </div>
             </div>
 
-            <LinkButton :href="users.create()">
+            <LinkButton :href="users.create()" class="min-w-[100px] shadow-xl shadow-primary/20">
                 + Nuevo
             </LinkButton>
         </div>
@@ -88,7 +97,8 @@ const setSearchValue = (value: string | number) => {
             <DataTable
                 ref="dataTableRef"
                 :columns="columns"
-                :data="data"
+                :data="items.data"
+                :pagination-data="{ links: items.links, meta: items.meta }"
             />
         </div>
     </AppLayout>

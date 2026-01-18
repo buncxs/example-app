@@ -18,18 +18,22 @@ class RolesAndPermissionsSeeder extends Seeder
 
         // 2. Crear Permisos Básicos (Ejemplos)
         $permissions = [
-            'user.view',
-            'user.create',
-            'user.edit',
-            'user.delete',
-            'role.view',
-            'role.create',
-            'role.edit',
-            'role.delete',
-            'permission.view',
-            'permission.create',
-            'permission.edit',
-            'permission.delete',
+            'users.view',
+            'users.create',
+            'users.edit',
+            'users.delete',
+            'roles.view',
+            'roles.create',
+            'roles.edit',
+            'roles.delete',
+            'permissions.view',
+            'permissions.create',
+            'permissions.edit',
+            'permissions.delete',
+            'hostels.view',
+            'hostels.create',
+            'hostels.edit',
+            'hostels.delete',
         ];
 
         foreach ($permissions as $permission) {
@@ -49,7 +53,7 @@ class RolesAndPermissionsSeeder extends Seeder
 
         // Role: Editor (Solo gestión de contenido/usuarios, no seguridad)
         $editor = Role::create(['name' => 'editor']);
-        $editor->givePermissionTo(['user.view', 'user.edit']);
+        $editor->givePermissionTo(['users.view', 'users.edit']);
 
         // Role: User
         Role::create(['name' => 'user']);

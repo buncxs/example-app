@@ -25,12 +25,20 @@ import type { Role } from '@/types/models/Role';
 /* --- PROPS Y TIPOS --- */
 // Recibe la colección de roles desde el controlador de Laravel
 const props = defineProps<{
-    roles: {
+    /*roles: {
         data: Role[];
         meta: any;
         links: any;
-    };
+    }; */
+    items: PaginatedData<Role>;
 }>();
+
+interface PaginatedData<T> {
+    data: T[];
+    links: any;
+    meta: any;
+}
+
 
 // Interfaz para exponer la API interna de TanStack Table desde el componente DataTable
 interface DataTableExpose {
@@ -87,15 +95,15 @@ const setSearchValue = (value: string | number) => {
                 </div>
             </div>
 
-            <LinkButton :href="roles.create()"> + Nuevo </LinkButton>
+            <LinkButton :href="roles.create()" class="min-w-[100px] shadow-xl shadow-primary/20"> + Nuevo </LinkButton>
         </div>
 
         <div class="mt-4">
             <DataTable
                 ref="dataTableRef"
                 :columns="columns"
-                :data="props.roles.data"
-                :pagination-data="{ links: props.roles.links, meta: props.roles.meta }"
+                :data="props.items.data"
+                :pagination-data="{ links: props.items.links, meta: props.items.meta }"
             />
         </div>
     </AppLayout>

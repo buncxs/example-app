@@ -8,22 +8,26 @@ use App\Http\Resources\PermissionResource;
 use App\Http\Resources\RoleResource;
 use App\Models\Permission;
 use App\Models\Role;
+use App\Services\RoleService;
 use Inertia\Inertia;
 
 class RoleController extends Controller
 {
+
+    public function __construct(protected RoleService $roleService) {}
+
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
         $roles = Role::select('id', 'uuid', 'name')
-        ->with(['permissions' => function ($query) {
-            $query->select('permissions.id', 'permissions.name');
-        }])->paginate(10)->withQueryString(); 
-        
+            ->with(['permissions' => function ($query) {
+                $query->select('permissions.id', 'permissions.name');
+            }])->paginate(10)->withQueryString();
+
         return Inertia::render('Roles/Index', [
-            'roles' => RoleResource::collection($roles),
+            'items' => RoleResource::collection($roles),
         ]);
     }
 
@@ -48,8 +52,13 @@ class RoleController extends Controller
      */
     public function store(StoreRoleRequest $request)
     {
-        Role::create($request->validated());
-        return redirect()->route('roles.index')->with('success', 'Rol creado con exito');
+        try {
+            $this->roleService->createRole($request->validated());
+            return redirect()->route('roles.index')->with('success', 'Rol creado con exito');
+        } catch (\Exception $e) {
+            return back()
+                ->withErrors(['error' => 'No se pudo crear el rol: ' . $e->getMessage()])->withInput();
+        }
     }
 
     /**
@@ -69,7 +78,7 @@ class RoleController extends Controller
     {
         $role->update($request->validated());
         return redirect()->route('roles.index')
-        ->with('success', "El rol {$role->name} ha sido actualizado");
+            ->with('success', "El rol {$role->name} ha sido actualizado");
     }
 
     /**

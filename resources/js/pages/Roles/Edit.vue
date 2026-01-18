@@ -94,13 +94,13 @@ watch(
                 </CardContent>
                 <CardFooter class="flex justify-end gap-3 border-t py-4">
                     <Button
-                        variant="outline"
+                        variant="ghost"
                         type="button"
                         @click="resetForm()"
                     >
                         Cancelar
                     </Button>
-                    <Button type="submit">Guardar Cambios</Button>
+                    <Button type="submit" class="min-w-[120px] shadow-xl shadow-primary/20">Guardar</Button>
                 </CardFooter>
             </Card>
         </form>
