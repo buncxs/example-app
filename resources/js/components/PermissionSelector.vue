@@ -76,8 +76,11 @@ const togglePermission = (uuid: string) => {
     const currentIds = [...props.modelValue];
     const index = currentIds.indexOf(uuid);
     
-    // Si ya existe lo quita, si no, lo añade
-    index > -1 ? currentIds.splice(index, 1) : currentIds.push(uuid);
+    if (index > -1) {
+        currentIds.splice(index, 1);
+    } else {
+        currentIds.push(uuid);
+    }
     
     emit('update:modelValue', currentIds);
 };

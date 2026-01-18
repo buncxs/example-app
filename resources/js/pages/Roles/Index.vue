@@ -24,12 +24,7 @@ import type { Role } from '@/types/models/Role';
 
 /* --- PROPS Y TIPOS --- */
 // Recibe la colección de roles desde el controlador de Laravel
-const props = defineProps<{
-    /*roles: {
-        data: Role[];
-        meta: any;
-        links: any;
-    }; */
+defineProps<{
     items: PaginatedData<Role>;
 }>();
 

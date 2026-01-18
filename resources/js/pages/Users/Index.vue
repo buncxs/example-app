@@ -25,7 +25,7 @@ import type { User } from '@/types/models/User';
 
 /* --- PROPS Y TIPOS --- */
 // Recibe la colección de usuarios desde el controlador de Laravel
-const props = defineProps<{
+defineProps<{
     items: PaginatedData<User>;
 }>();
 

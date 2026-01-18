@@ -31,7 +31,7 @@ interface PermissionItem {
 /**
  * --- PROPS & NAVEGACIÓN ---
  */
-const props = defineProps<{
+defineProps<{
     permissions: Record<string, PermissionItem[]>;
 }>();
 
