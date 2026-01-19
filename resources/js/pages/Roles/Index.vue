@@ -97,8 +97,8 @@ const setSearchValue = (value: string | number) => {
             <DataTable
                 ref="dataTableRef"
                 :columns="columns"
-                :data="props.items.data"
-                :pagination-data="{ links: props.items.links, meta: props.items.meta }"
+                :data="items.data"
+                :pagination-data="{ links: items.links, meta: items.meta }"
             />
         </div>
     </AppLayout>

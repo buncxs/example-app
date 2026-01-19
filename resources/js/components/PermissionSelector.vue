@@ -8,7 +8,7 @@ import { Card, CardContent } from '@/components/ui/card';
  * Definición de la estructura de un permiso individual.
  */
 interface PermissionItem {
-    uuid: string;
+    id: number | string; 
     name: string;
     module: string;
     display_name: string;
@@ -16,39 +16,28 @@ interface PermissionItem {
 
 /**
  * Props del componente:
- * - permissions: Objeto donde la llave es el nombre del módulo y el valor es un array de permisos.
- * - modelValue: Array de UUIDs seleccionados, vinculado mediante v-model desde el padre.
+ * - modelValue: Ahora recibe un array de IDs (number o string).
  */
 const props = defineProps<{
     permissions: Record<string, PermissionItem[]>;
-    modelValue: string[]; 
+    modelValue: (number | string)[]; 
 }>();
 
-/**
- * Emite actualizaciones al padre para mantener la reactividad del v-model.
- */
 const emit = defineEmits(['update:modelValue']);
 
 /* --- LÓGICA DE NAVEGACIÓN Y PAGINACIÓN --- */
 const currentPage = ref(0);
-const itemsPerPage = 3; // Cantidad de tarjetas visibles por página
-const slideDirection = ref('slide-next'); // Controla la dirección de la animación (izquierda/derecha)
+const itemsPerPage = 3;
+const slideDirection = ref('slide-next');
 
-// Extrae los nombres de los módulos (claves del objeto)
 const moduleKeys = computed(() => Object.keys(props.permissions));
-
-// Calcula el total de páginas basado en la cantidad de módulos
 const totalPages = computed(() => Math.ceil(moduleKeys.value.length / itemsPerPage));
 
-// Filtra los módulos que deben mostrarse en la página actual
 const visibleModuleKeys = computed(() => {
     const start = currentPage.value * itemsPerPage;
     return moduleKeys.value.slice(start, start + itemsPerPage);
 });
 
-/**
- * Avanza a la siguiente página y ajusta la dirección de la animación.
- */
 const nextPage = () => {
     if (currentPage.value < totalPages.value - 1) {
         slideDirection.value = 'slide-next';
@@ -56,9 +45,6 @@ const nextPage = () => {
     }
 };
 
-/**
- * Retrocede a la página anterior y ajusta la dirección de la animación.
- */
 const prevPage = () => {
     if (currentPage.value > 0) {
         slideDirection.value = 'slide-prev';
@@ -69,39 +55,34 @@ const prevPage = () => {
 /* --- GESTIÓN DE SELECCIÓN DE PERMISOS --- */
 
 /**
- * Agrega o elimina un permiso individual del array modelValue.
- * @param uuid Identificador único del permiso.
+ * Agrega o elimina un permiso individual usando su ID.
  */
-const togglePermission = (uuid: string) => {
+const togglePermission = (id: number | string) => {
     const currentIds = [...props.modelValue];
-    const index = currentIds.indexOf(uuid);
+    const index = currentIds.indexOf(id);
     
     if (index > -1) {
         currentIds.splice(index, 1);
     } else {
-        currentIds.push(uuid);
+        currentIds.push(id);
     }
     
     emit('update:modelValue', currentIds);
 };
 
 /**
- * Selecciona o deselecciona todos los permisos de un módulo específico.
- * @param modulePermissions Array de permisos pertenecientes al módulo.
+ * Selecciona o deselecciona todos los permisos de un módulo usando IDs.
  */
 const toggleModule = (modulePermissions: PermissionItem[]) => {
-    const ids = modulePermissions.map((p) => p.uuid);
+    const ids = modulePermissions.map((p) => p.id);
     const currentIds = [...props.modelValue];
     
-    // Verifica si todos los permisos del módulo ya están seleccionados
     const allSelected = ids.every((id) => currentIds.includes(id));
     
-    let nextValue: string[];
+    let nextValue: (number | string)[];
     if (allSelected) {
-        // Quita todos los permisos de este módulo
         nextValue = currentIds.filter((id) => !ids.includes(id));
     } else {
-        // Agrega los que falten evitando duplicados
         nextValue = [...new Set([...currentIds, ...ids])];
     }
     
@@ -109,12 +90,11 @@ const toggleModule = (modulePermissions: PermissionItem[]) => {
 };
 
 /**
- * Determina si todos los permisos de un módulo están marcados.
- * Útil para cambiar el estilo del botón "Todo/Deseleccionar".
+ * Determina si todos los permisos de un módulo están marcados por ID.
  */
 const isModuleFull = (moduleName: string) => {
     const moduleItems = props.permissions[moduleName];
-    return moduleItems.every(p => props.modelValue.includes(p.uuid));
+    return moduleItems.every(p => props.modelValue.includes(p.id));
 };
 </script>
 
@@ -183,15 +163,15 @@ const isModuleFull = (moduleName: string) => {
                         <CardContent class="flex-1 space-y-4 p-5">
                             <div
                                 v-for="permission in permissions[moduleName]"
-                                :key="permission.uuid"
+                                :key="permission.id"
                                 class="flex items-center gap-3 group cursor-pointer"
-                                @click="togglePermission(permission.uuid)"
+                                @click="togglePermission(permission.id)"
                             >
                                 <div 
                                     class="w-5 h-5 rounded border-2 flex items-center justify-center transition-all duration-200"
-                                    :class="modelValue.includes(permission.uuid) ? 'bg-primary border-primary' : 'border-muted-foreground/30 bg-background'"
+                                    :class="modelValue.includes(permission.id) ? 'bg-primary border-primary' : 'border-muted-foreground/30 bg-background'"
                                 >
-                                    <div v-if="modelValue.includes(permission.uuid)" class="w-1.5 h-1.5 bg-white rounded-full"></div>
+                                    <div v-if="modelValue.includes(permission.id)" class="w-1.5 h-1.5 bg-white rounded-full"></div>
                                 </div>
                                 <label class="cursor-pointer text-sm font-semibold text-muted-foreground group-hover:text-foreground transition-colors select-none">
                                     {{ permission.display_name }}
@@ -206,19 +186,14 @@ const isModuleFull = (moduleName: string) => {
 </template>
 
 <style scoped>
-/* ANIMACIONES DE DESLIZAMIENTO (Slide)
-   Se utiliza cubic-bezier para un movimiento más fluido y orgánico.
-*/
 .slide-next-enter-active, .slide-next-leave-active,
 .slide-prev-enter-active, .slide-prev-leave-active {
-    transition: all 0.1s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Estado cuando vas a la derecha (Siguiente) */
 .slide-next-enter-from { opacity: 0; transform: translateX(60px); }
 .slide-next-leave-to { opacity: 0; transform: translateX(-60px); }
 
-/* Estado cuando vas a la izquierda (Anterior) */
 .slide-prev-enter-from { opacity: 0; transform: translateX(-60px); }
 .slide-prev-leave-to { opacity: 0; transform: translateX(60px); }
 </style>

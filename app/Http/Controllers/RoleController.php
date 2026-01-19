@@ -6,10 +6,10 @@ use App\Http\Requests\Role\StoreRoleRequest;
 use App\Http\Requests\Role\UpdateRoleRequest;
 use App\Http\Resources\PermissionResource;
 use App\Http\Resources\RoleResource;
-use App\Models\Permission;
-use App\Models\Role;
 use App\Services\RoleService;
 use Inertia\Inertia;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 
 class RoleController extends Controller
 {
@@ -21,11 +21,9 @@ class RoleController extends Controller
      */
     public function index()
     {
-        $roles = Role::select('id', 'uuid', 'name')
-            ->with(['permissions' => function ($query) {
-                $query->select('permissions.id', 'permissions.name');
-            }])->paginate(10)->withQueryString();
-
+        $roles = Role::select('id', 'name')
+            ->with('permissions:id,name')->paginate(10)->withQueryString();
+        
         return Inertia::render('Roles/Index', [
             'items' => RoleResource::collection($roles),
         ]);
@@ -36,7 +34,7 @@ class RoleController extends Controller
      */
     public function create()
     {
-        $permissionsSql = Permission::select('id', 'uuid', 'name', 'module')->get();
+        $permissionsSql = Permission::select('id', 'name', 'module')->get();
 
         $permissions = collect(PermissionResource::collection($permissionsSql)
             ->resolve())
@@ -51,13 +49,13 @@ class RoleController extends Controller
      * Store a newly created resource in storage.
      */
     public function store(StoreRoleRequest $request)
-    {
+    {   
         try {
             $this->roleService->createRole($request->validated());
             return redirect()->route('roles.index')->with('success', 'Rol creado con exito');
         } catch (\Exception $e) {
             return back()
-                ->withErrors(['error' => 'No se pudo crear el rol: ' . $e->getMessage()])->withInput();
+                ->with(['error' => 'No se pudo crear el rol: ' . $e->getMessage()])->withInput();
         }
     }
 

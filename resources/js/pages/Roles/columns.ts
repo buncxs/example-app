@@ -30,14 +30,14 @@ export const columns: ColumnDef<Role>[] = [
                         {
                             label: 'Editar',
                             icon: Edit,
-                            href: roles.edit(role.uuid).url,
+                            href: roles.edit(role.id).url,
                         },
                         {
                             label: 'Eliminar',
                             icon: Trash2,
                             requiresConfirmation: true,
                             callback: () => {
-                                router.delete(roles.destroy(role.uuid), {
+                                router.delete(roles.destroy(role.id), {
                                     preserveScroll: true,
                                 });
                             },

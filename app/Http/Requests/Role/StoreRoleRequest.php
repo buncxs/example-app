@@ -37,7 +37,7 @@ class StoreRoleRequest extends FormRequest
                 'required', 'array', 'min:1',
             ],
             'permission_ids.*' => [
-                Rule::exists('permissions', 'uuid'),
+                Rule::exists('permissions', 'id'),
             ],
         ];
     }

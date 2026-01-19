@@ -2,8 +2,9 @@
 
 namespace App\Services;
 
-use App\Models\Role;
+
 use Illuminate\Support\Facades\DB;
+use Spatie\Permission\Models\Role;
 
 class RoleService
 {

@@ -22,7 +22,7 @@ import { type BreadcrumbItem } from '@/types';
  * --- DEFINICIÓN DE TIPOS ---
  */
 interface PermissionItem {
-    uuid: string;
+    id: number | string;
     name: string;
     module: string;
     display_name: string;
@@ -48,7 +48,7 @@ const formSchema = toTypedSchema(
     z.object({
         name: z.string().min(4, 'El nombre debe tener al menos 4 caracteres'),
         permission_ids: z
-            .array(z.string())
+            .array(z.number())
             .min(1, 'Selecciona al menos un permiso')
             .default([]),
     }),
