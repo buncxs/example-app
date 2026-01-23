@@ -7,6 +7,8 @@ use App\Http\Requests\Role\UpdateRoleRequest;
 use App\Http\Resources\PermissionResource;
 use App\Http\Resources\RoleResource;
 use App\Services\RoleService;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
@@ -19,13 +21,18 @@ class RoleController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         $roles = Role::select('id', 'name')
-            ->with('permissions:id,name')->paginate(10)->withQueryString();
-        
+            ->with('permissions:id,name')
+            ->when($request->search, function ($query, $search) {
+                $query->where('name', 'like', "%{$search}%");
+            })
+            ->paginate(10)->withQueryString();
+
         return Inertia::render('Roles/Index', [
             'items' => RoleResource::collection($roles),
+            'filters' => $request->only(['search']),
         ]);
     }
 
@@ -49,7 +56,7 @@ class RoleController extends Controller
      * Store a newly created resource in storage.
      */
     public function store(StoreRoleRequest $request)
-    {   
+    {
         try {
             $this->roleService->createRole($request->validated());
             return redirect()->route('roles.index')->with('success', 'Rol creado con exito');
@@ -64,8 +71,17 @@ class RoleController extends Controller
      */
     public function edit(Role $role)
     {
+        $role->load('permissions:id,name');
+
+        $permissions = Permission::select('id', 'name', 'module')->get()
+            ->pipe(fn($p) => PermissionResource::collection($p))
+            ->resolve();
+
+        $permissions = collect($permissions)->groupBy('module');
+
         return Inertia::render('Roles/Edit', [
-            'role' => $role
+            'role' => RoleResource::make($role),
+            'permissions' => $permissions,
         ]);
     }
 
@@ -74,9 +90,14 @@ class RoleController extends Controller
      */
     public function update(UpdateRoleRequest $request, Role $role)
     {
-        $role->update($request->validated());
-        return redirect()->route('roles.index')
-            ->with('success', "El rol {$role->name} ha sido actualizado");
+        try {
+            $this->roleService->updateRole($role, $request->validated());
+            return redirect()->route('roles.index')
+                ->with('success', "El rol {$role->name} ha sido actualizado");
+        } catch (\Exception $e) {
+            return back()
+                ->with(['error' => 'No se pudo actualizar el rol: ' . $e->getMessage()])->withInput();
+        }
     }
 
     /**

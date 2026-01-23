@@ -1,8 +1,8 @@
 <script setup lang="ts">
 /* --- IMPORTS --- */
-import { Head } from '@inertiajs/vue3';
+import { Head, router } from '@inertiajs/vue3';
 import { type Table } from '@tanstack/vue-table';
-import { ref, type ComponentPublicInstance } from 'vue';
+import { ref, watch } from 'vue';
 
 // Iconos
 import { Search } from 'lucide-vue-next';
@@ -21,23 +21,21 @@ import roles from '@/routes/roles';
 // Tipado TypeScript
 import { type BreadcrumbItem } from '@/types';
 import type { Role } from '@/types/models/Role';
+import { debounce } from 'lodash';
 
 /* --- PROPS Y TIPOS --- */
 // Recibe la colección de roles desde el controlador de Laravel
-defineProps<{
+const props = defineProps<{
     items: PaginatedData<Role>;
+    filters: { search?: string };
 }>();
+
+const search = ref(props.filters.search ?? '');
 
 interface PaginatedData<T> {
     data: T[];
     links: any;
     meta: any;
-}
-
-
-// Interfaz para exponer la API interna de TanStack Table desde el componente DataTable
-interface DataTableExpose {
-    table: Table<any>;
 }
 
 /* --- ESTADO Y CONFIGURACIÓN --- */
@@ -48,25 +46,23 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-// Referencia al componente DataTable para gestionar filtros y estado global de la tabla
-const dataTableRef = ref<(ComponentPublicInstance & DataTableExpose) | null>(
-    null,
-);
-
 /* --- MÉTODOS DE FILTRADO --- */
-// Obtiene el valor actual del filtro de búsqueda
-const getSearchValue = () => {
-    return (
-        (dataTableRef.value?.table
-            .getColumn('name')
-            ?.getFilterValue() as string) ?? ''
+// Búsqueda por server
+const updateSearch = debounce((value: string) => {
+    router.get(
+        roles.index.url(),
+        { search: value },
+        {
+            preserveState: true,
+            replace: true,
+            preserveScroll: true,
+        },
     );
-};
+}, 300);
 
-// Aplica el nuevo valor de búsqueda a la columna 'name'
-const setSearchValue = (value: string | number) => {
-    dataTableRef.value?.table.getColumn('name')?.setFilterValue(value);
-};
+watch(search, (newValue) => {
+    updateSearch(newValue);
+});
 </script>
 
 <template>
@@ -77,8 +73,7 @@ const setSearchValue = (value: string | number) => {
             <div class="relative w-full max-w-sm">
                 <Input
                     placeholder="Buscar por nombre..."
-                    :model-value="getSearchValue()"
-                    @update:model-value="setSearchValue"
+                    v-model="search"
                     class="pl-10"
                 />
                 <div
@@ -90,12 +85,16 @@ const setSearchValue = (value: string | number) => {
                 </div>
             </div>
 
-            <LinkButton :href="roles.create()" class="min-w-[100px] shadow-xl shadow-primary/20"> + Nuevo </LinkButton>
+            <LinkButton
+                :href="roles.create()"
+                class="min-w-[100px] shadow-xl shadow-primary/20"
+            >
+                + Nuevo
+            </LinkButton>
         </div>
 
         <div class="mt-4">
             <DataTable
-                ref="dataTableRef"
                 :columns="columns"
                 :data="items.data"
                 :pagination-data="{ links: items.links, meta: items.meta }"

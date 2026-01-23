@@ -35,6 +35,16 @@ class UpdateRoleRequest extends FormRequest
                 'regex:/^[a-zA-ZÀ-ÿ\s\-]+$/u',
                 Rule::unique('roles')->ignore($role->id),
             ],
+            'permission_ids' => [
+                'required',
+                'array',
+                'min:1',
+            ],
+            'permission_ids.*' => [
+                'required',
+                'integer',
+                'exists:permissions,id',
+            ],
         ];
     }
 
@@ -45,6 +55,9 @@ class UpdateRoleRequest extends FormRequest
             'name.min' => 'El nombre del rol es demasiado corto (mínimo 4 caracteres).',
             'name.regex' => 'El nombre del rol solo puede contener letras y espacios (evita números o símbolos).',
             'name.unique' => 'Ya existe un rol con este nombre, prueba con uno diferente.',
+            'permission_ids.required' => 'Debe seleccionar al menos un permiso para este rol.',
+            'permission_ids.min' => 'El rol debe de tener asignado al menos :min permiso.',
+            'permission_ids.*.exists' => 'Uno de los permisos seleccionados no es valido o ha sido eliminado.',
         ];
     }
 

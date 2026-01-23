@@ -18,12 +18,21 @@ class RoleService
                 ]
             );
 
-            if(!empty($data['permission_ids'])) {
+            if (!empty($data['permission_ids'])) {
                 $role->syncPermissions($data['permission_ids']);
             }
 
             return $role;
-
         });
+    }
+
+    public function updateRole(Role $role, array $data): Role
+    {
+        return DB::transaction(function () use ($role, $data) {
+            $role->update(['name' => $data['name']]);
+            $role->syncPermissions($data['permission_ids']);
+            return $role;
+        });
+          
     }
 }
