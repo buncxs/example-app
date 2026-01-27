@@ -82,7 +82,7 @@ const {
 const [name, nameProps] = defineField('name', { validateOnModelUpdate: false });
 const [description, descriptionProps] = defineField('description', { validateOnModelUpdate: false });
 const [icon, iconProps] = defineField('icon', { validateOnModelUpdate: false });
-const [permission_ids] = defineField('permission_ids');
+
 
 /**
  * --- ACCIONES / HANDLERS ---

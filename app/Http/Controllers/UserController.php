@@ -13,12 +13,9 @@ use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
 {
-    protected $userService;
 
-    public function __construct(UserService $userService)
-    {
-        $this->userService = $userService;
-    }
+
+    public function __construct(protected UserService $userService){}
 
     /**
      * Display a listing of the resource.
@@ -53,16 +50,9 @@ class UserController extends Controller
      */
     public function store(StoreUserRequest $request)
     {
-        User::create($request->validated());
-        return redirect()->route('users.index')->with('success', 'Usuario creado con exito');
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
+        //User::create($request->validated());
+        $this->userService->createUser($request->validated());
+        return to_route('users.index')->with('success', 'Usuario creado con exito');
     }
 
     /**
@@ -71,7 +61,8 @@ class UserController extends Controller
     public function edit(User $user)
     {
         return Inertia::render('Users/Edit', [
-            'user' => $user
+            'user' => $user->load('roles'),
+            'roles' => Role::all(),
         ]);
     }
 
@@ -80,8 +71,8 @@ class UserController extends Controller
      */
     public function update(UpdateUserRequest $request, User $user)
     {
-        $user->update($request->validated());
-        return redirect()->route('users.index')
+        $this->userService->updateUser($user, $request->validated());
+        return to_route('users.index')
         ->with('success', "El usuario {$user->name} ha sido actualizado");
     }
 
@@ -91,6 +82,6 @@ class UserController extends Controller
     public function destroy(User $user)
     {
         $user->delete();
-        return redirect()->back()->with('success', 'Usuario eliminado correctamente');
+        return back()->with('success', 'Usuario eliminado correctamente');
     }
 }

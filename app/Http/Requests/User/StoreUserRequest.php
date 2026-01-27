@@ -3,6 +3,7 @@
 namespace App\Http\Requests\User;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 
 class StoreUserRequest extends FormRequest
@@ -42,6 +43,14 @@ class StoreUserRequest extends FormRequest
                 Password::min(8)
                     ->letters()   // regex /[a-zA-Z]/
                     ->numbers()   // regex /[0-9]/
+            ],
+            'role_ids' => [
+                'required',
+                'array',
+                'min:1',
+            ],
+            'role_ids.*' => [
+                Rule::exists('roles', 'id'),
             ],
         ];
     

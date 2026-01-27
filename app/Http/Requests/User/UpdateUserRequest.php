@@ -33,6 +33,14 @@ class UpdateUserRequest extends FormRequest
                 'confirmed',
                 Password::min(8)->letters()->numbers(),
             ],
+            'role_ids' => [
+                'required',
+                'array',
+                'min:1',
+            ],
+            'role_ids.*' => [
+                Rule::exists('roles', 'id'),
+            ],
         ];
     }
 
