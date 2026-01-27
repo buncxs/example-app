@@ -1,7 +1,6 @@
 <script setup lang="ts">
 /* --- IMPORTS --- */
 import { Head, router } from '@inertiajs/vue3';
-import { type Table } from '@tanstack/vue-table';
 import { ref, watch } from 'vue';
 
 // Iconos

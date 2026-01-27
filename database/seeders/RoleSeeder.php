@@ -13,11 +13,31 @@ class RoleSeeder extends Seeder
      */
     public function run(): void
     {
-        DB::insert([
-            ['name' => 'Super Administrador', 'guard_name' => 'web'],
-            ['name' => 'Administrador', 'guard_name' => 'web'],
-            ['name' => 'Editor', 'guard_name' => 'web'],
-            ['name' => 'Operador', 'guard_name' => 'web'],
+        DB::table('roles')->insert([
+            [
+                'name' => 'Super Administrador',
+                'guard_name' => 'web',
+                'description' => 'Control total y configuración técnica del sistema.',
+                'icon' => 'ShieldAlert',
+            ],
+            [
+                'name' => 'Administrador', 
+                'guard_name' => 'web',
+                'description' => 'Gestion de personal y operaciones del sistema.',
+                'icon' => 'ShieldCheck'
+            ],
+            [
+                'name' => 'Operador', 
+                'guard_name' => 'web',
+                'description' => 'Creacion y edición de registros diarios.',
+                'icon' => 'UserCog',
+            ],
+            [
+                'name' => 'Auditor', 
+                'guard_name' => 'web',
+                'description' => 'Acceso de solo lectura',
+                'icon' => 'Eye',
+            ],
         ]);
     }
 }

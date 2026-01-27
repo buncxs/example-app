@@ -4,13 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Role\StoreRoleRequest;
 use App\Http\Requests\Role\UpdateRoleRequest;
-use App\Http\Resources\PermissionResource;
 use App\Http\Resources\RoleResource;
 use App\Services\RoleService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
-use Spatie\Permission\Models\Permission;
+use Inertia\Response;
 use Spatie\Permission\Models\Role;
 
 class RoleController extends Controller
@@ -21,9 +19,9 @@ class RoleController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index(Request $request) : Response
     {
-        $roles = Role::select('id', 'name')
+        $roles = Role::select('id', 'name', 'description', 'icon')
             ->with('permissions:id,name')
             ->when($request->search, function ($query, $search) {
                 $query->where('name', 'like', "%{$search}%");
@@ -39,16 +37,10 @@ class RoleController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create() : Response
     {
-        $permissionsSql = Permission::select('id', 'name', 'module')->get();
-
-        $permissions = collect(PermissionResource::collection($permissionsSql)
-            ->resolve())
-            ->groupBy('module');
-
         return Inertia::render('Roles/Create', [
-            'permissions' => $permissions,
+            'permissions' => $this->roleService->getGroupedPermissions(),
         ]);
     }
 
@@ -59,7 +51,7 @@ class RoleController extends Controller
     {
         try {
             $this->roleService->createRole($request->validated());
-            return redirect()->route('roles.index')->with('success', 'Rol creado con exito');
+            return to_route('roles.index')->with('success', 'Rol creado con exito');
         } catch (\Exception $e) {
             return back()
                 ->with(['error' => 'No se pudo crear el rol: ' . $e->getMessage()])->withInput();
@@ -69,19 +61,11 @@ class RoleController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Role $role)
+    public function edit(Role $role) : Response
     {
-        $role->load('permissions:id,name');
-
-        $permissions = Permission::select('id', 'name', 'module')->get()
-            ->pipe(fn($p) => PermissionResource::collection($p))
-            ->resolve();
-
-        $permissions = collect($permissions)->groupBy('module');
-
         return Inertia::render('Roles/Edit', [
-            'role' => RoleResource::make($role),
-            'permissions' => $permissions,
+            'role' => RoleResource::make($role->load('permissions:id,name')),
+            'permissions' => $this->roleService->getGroupedPermissions(),
         ]);
     }
 
@@ -92,7 +76,7 @@ class RoleController extends Controller
     {
         try {
             $this->roleService->updateRole($role, $request->validated());
-            return redirect()->route('roles.index')
+            return to_route('roles.index')
                 ->with('success', "El rol {$role->name} ha sido actualizado");
         } catch (\Exception $e) {
             return back()
@@ -106,6 +90,6 @@ class RoleController extends Controller
     public function destroy(Role $role)
     {
         $role->delete();
-        return redirect()->back()->with('success', 'Rol eliminado correctamente');
+        return back()->with('success', 'Rol eliminado correctamente');
     }
 }

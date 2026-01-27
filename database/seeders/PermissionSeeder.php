@@ -23,14 +23,6 @@ class PermissionSeeder extends Seeder
                 ['name' => 'roles.create', 'guard_name' => 'web', 'module' => 'roles'],
                 ['name' => 'roles.edit', 'guard_name' => 'web', 'module' => 'roles'],
                 ['name' => 'roles.delete', 'guard_name' => 'web', 'module' => 'roles'],
-                ['name' => 'posts.view', 'guard_name' => 'web', 'module' => 'posts'],
-                ['name' => 'posts.create', 'guard_name' => 'web', 'module' => 'posts'],
-                ['name' => 'posts.edit', 'guard_name' => 'web', 'module' => 'posts'],
-                ['name' => 'posts.delete', 'guard_name' => 'web', 'module' => 'posts'],
-                ['name' => 'hostels.view', 'guard_name' => 'web', 'module' => 'hostels'],
-                ['name' => 'hostels.create', 'guard_name' => 'web', 'module' => 'hostels'],
-                ['name' => 'hostels.edit', 'guard_name' => 'web', 'module' => 'hostels'],
-                ['name' => 'hostels.delete', 'guard_name' => 'web', 'module' => 'hostels'],
             ]
         );
     }

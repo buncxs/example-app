@@ -2,8 +2,9 @@
 
 namespace App\Services;
 
-
+use App\Http\Resources\PermissionResource;
 use Illuminate\Support\Facades\DB;
+use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
 class RoleService
@@ -14,7 +15,9 @@ class RoleService
             $role = Role::create(
                 [
                     'name' => $data['name'],
-                    'guard_name' => 'web'
+                    'guard_name' => 'web',
+                    'description' => $data['description'],
+                    'icon' => $data['icon'],
                 ]
             );
 
@@ -29,10 +32,24 @@ class RoleService
     public function updateRole(Role $role, array $data): Role
     {
         return DB::transaction(function () use ($role, $data) {
-            $role->update(['name' => $data['name']]);
+            $role->update(
+                [
+                    'name' => $data['name'],
+                    'description' => $data['description'],
+                    'icon' => $data['icon'],
+                ]);
             $role->syncPermissions($data['permission_ids']);
             return $role;
         });
           
     }
+
+    public function getGroupedPermissions()
+    {
+        $permissions = Permission::select('id', 'name', 'module')->get();
+        return collect(PermissionResource::collection($permissions)
+        ->resolve())->groupBy('module');
+    }
+
+
 }

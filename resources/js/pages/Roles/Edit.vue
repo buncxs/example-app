@@ -49,6 +49,8 @@ const breadcrumbs: BreadcrumbItem[] = [
 const formSchema = toTypedSchema(
     z.object({
         name: z.string().min(4, 'El nombre debe tener al menos 4 caracteres'),
+        description: z.string().min(5),
+        icon: z.string().min(3),
         permission_ids: z
             .array(z.number())
             .min(1, 'Selecciona al menos un permiso')
@@ -64,17 +66,23 @@ const {
     resetForm,
     setFieldValue,
     values,
-    submitCount,
 } = useForm({
     validationSchema: formSchema,
-    initialValues: { name: props.role.name, 
-    permission_ids: props.role.permissions?.map(p => p.id) ?? [] },
+    initialValues: { 
+        name: props.role.name, 
+        description: props.role.description,
+        icon: props.role.icon,
+        permission_ids: props.role.permissions?.map(p => p.id) ?? [] 
+    },
     validateOnMount: false, // Evita errores visuales al cargar la página
 });
 
 // Definición de campos individuales
 // validateOnModelUpdate: false evita que valide mientras el usuario escribe
 const [name, nameProps] = defineField('name', { validateOnModelUpdate: false });
+const [description, descriptionProps] = defineField('description', { validateOnModelUpdate: false });
+const [icon, iconProps] = defineField('icon', { validateOnModelUpdate: false });
+const [permission_ids] = defineField('permission_ids');
 
 /**
  * --- ACCIONES / HANDLERS ---
@@ -108,25 +116,53 @@ watch(
         />
 
         <form @submit.prevent="onSubmit" class="mt-6 space-y-8 pb-10">
-            
             <Card>
                 <CardHeader class="pb-3">
-                    <CardTitle class="text-sm font-semibold tracking-wider text-muted-foreground uppercase">
+                    <CardTitle
+                        class="text-sm font-semibold tracking-wider text-muted-foreground uppercase"
+                    >
                         Información General
                     </CardTitle>
                 </CardHeader>
                 <CardContent>
                     <FieldGroup>
                         <Field>
-                            <FieldLabel for="name" class="text-foreground">Nombre del Rol</FieldLabel>
+                            <FieldLabel for="name" class="text-foreground"
+                                >Nombre del Rol</FieldLabel
+                            >
                             <Input
                                 id="name"
                                 v-model="name"
                                 v-bind="nameProps"
                                 placeholder="Ej: Administrador Jefe"
-                                :class="{ 'border-destructive focus-visible:ring-destructive': errors.name }"
+                                :class="{
+                                    'border-destructive focus-visible:ring-destructive':
+                                        errors.name,
+                                }"
                             />
                             <FieldError>{{ errors.name }}</FieldError>
+                        </Field>
+                        <Field>
+                            <FieldLabel for="description" class="text-foreground">Descripción</FieldLabel>
+                            <Input
+                                id="description"
+                                v-model="description"
+                                v-bind="descriptionProps"
+                                placeholder="Acceso total a todos los módulos y configuración del sistema."
+                                :class="{ 'border-destructive focus-visible:ring-destructive': errors.description }"
+                            />
+                            <FieldError>{{ errors.description }}</FieldError>
+                        </Field>
+                        <Field>
+                            <FieldLabel for="icon" class="text-foreground">Icono</FieldLabel>
+                            <Input
+                                id="icon"
+                                v-model="icon"
+                                v-bind="iconProps"
+                                placeholder="Icono de la libreria lucide-vue-next"
+                                :class="{ 'border-destructive focus-visible:ring-destructive': errors.icon }"
+                            />
+                            <FieldError>{{ errors.icon }}</FieldError>
                         </Field>
                     </FieldGroup>
                 </CardContent>
@@ -138,11 +174,12 @@ watch(
                 @update:model-value="setFieldValue('permission_ids', $event)"
             />
 
-            <div v-if="errors.permission_ids && submitCount > 0">
+            <FieldError v-if="errors.permission_ids">
+            
                 <p class="mt-4 animate-in fade-in zoom-in rounded-lg bg-destructive/10 p-2 text-center text-sm font-bold text-destructive">
                     ⚠ {{ errors.permission_ids }}
                 </p>
-            </div>
+            </FieldError>
 
             <div class="flex items-center justify-end gap-3 border-t pt-6">
                 <Button

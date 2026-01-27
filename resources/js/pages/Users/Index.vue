@@ -1,7 +1,7 @@
 <script setup lang="ts">
 /* --- IMPORTS --- */
-import { ref, type ComponentPublicInstance } from 'vue';
-import { Head } from '@inertiajs/vue3';
+import { ref, watch, type ComponentPublicInstance } from 'vue';
+import { Head, router } from '@inertiajs/vue3';
 import { type Table } from '@tanstack/vue-table';
 
 // Iconos
@@ -22,17 +22,17 @@ import users from '@/routes/users';
 // Tipado TypeScript
 import { type BreadcrumbItem } from '@/types';
 import type { User } from '@/types/models/User';
+import { debounce } from 'lodash';
 
 /* --- PROPS Y TIPOS --- */
 // Recibe la colección de usuarios desde el controlador de Laravel
-defineProps<{
+const props = defineProps<{
     items: PaginatedData<User>;
+    filters: { search: string, };
 }>();
 
-// Interfaz para exponer la API interna de TanStack Table desde el componente DataTable
-interface DataTableExpose {
-    table: Table<any>;
-}
+
+const search = ref(props.filters.search ?? '');
 
 interface PaginatedData<T> {
     data: T[];
@@ -49,19 +49,24 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-// Referencia al componente DataTable para gestionar filtros y estado global de la tabla
-const dataTableRef = ref<(ComponentPublicInstance & DataTableExpose) | null>(null);
-
 /* --- MÉTODOS DE FILTRADO --- */
-// Obtiene el valor actual del filtro de búsqueda
-const getSearchValue = () => {
-    return (dataTableRef.value?.table.getColumn('name')?.getFilterValue() as string) ?? '';
-};
+// Búsqueda por server
+const updateSearch = debounce((value: string) => {
+    router.get(
+        users.index.url(),
+        { search: value },
+        {
+            preserveState: true,
+            replace: true,
+            preserveScroll: true,
+        },
+    );
+}, 300);
 
-// Aplica el nuevo valor de búsqueda a la columna 'name'
-const setSearchValue = (value: string | number) => {
-    dataTableRef.value?.table.getColumn('name')?.setFilterValue(value);
-};
+
+watch(search, (newValue) => {
+    updateSearch(newValue);
+});
 
 
 </script>
@@ -79,8 +84,7 @@ const setSearchValue = (value: string | number) => {
             <div class="relative w-full max-w-sm">
                 <Input
                     placeholder="Buscar por nombre..."
-                    :model-value="getSearchValue()"
-                    @update:model-value="setSearchValue"
+                    v-model="search"
                     class="pl-10" 
                 />
                 <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-muted-foreground">
@@ -95,7 +99,6 @@ const setSearchValue = (value: string | number) => {
 
         <div class="mt-4">
             <DataTable
-                ref="dataTableRef"
                 :columns="columns"
                 :data="items.data"
                 :pagination-data="{ links: items.links, meta: items.meta }"

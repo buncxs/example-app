@@ -19,6 +19,11 @@ export const columns: ColumnDef<Role>[] = [
         cell: ({ row }) => h('div', { class: '' }, row.getValue('name')),
     },
     {
+        accessorKey: 'description',
+        header: () => h('div', { class: ' font-bold text-left' }, 'Descripción'),
+        cell: ({ row }) => h('div', { class: '' }, row.getValue('description')),
+    },
+    {
         id: 'actions',
         cell: ({ row }) => {
             const role = row.original;

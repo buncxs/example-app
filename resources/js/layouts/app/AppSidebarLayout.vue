@@ -17,9 +17,9 @@ withDefaults(defineProps<Props>(), {
 
 <template>
     <!--<div class="mx-auto max-w-screen-2xl">-->
-    <AppShell variant="sidebar">
+    <AppShell variant="sidebar" class="h-screen overflow-hidden">
         <AppSidebar />
-        <AppContent variant="sidebar" class="overflow-x-hidden">
+        <AppContent variant="sidebar" class="h-full overflow-y-auto">
             <PaddingContainer>
                 <AppSidebarHeader :breadcrumbs="breadcrumbs" />
                 <slot />

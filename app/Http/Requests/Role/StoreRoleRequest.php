@@ -33,6 +33,16 @@ class StoreRoleRequest extends FormRequest
                 'regex:/^[a-zA-ZÀ-ÿ\s\-]+$/u',
                 Rule::unique('roles', 'name'),
             ],
+            'description' => [
+                'required',
+                'string',
+                'min:5',
+            ],
+            'icon' => [
+                'required',
+                'string',
+                'min:3',
+            ],
             'permission_ids' => [
                 'required', 'array', 'min:1',
             ],
@@ -45,13 +55,27 @@ class StoreRoleRequest extends FormRequest
     public function messages(): array
     {
         return [
+    
             'name.required' => 'El nombre del rol es obligatorio.',
-            'name.min' => 'El nombre del rol es demasiado corto (mínimo 4 caracteres).',
-            'name.regex' => 'El nombre del rol solo puede contener letras y espacios (evita números o símbolos).',
-            'name.unique' => 'Ya existe un rol con este nombre, prueba con uno diferente.',
+            'name.string'   => 'El nombre del rol debe ser un texto válido.',
+            'name.min'      => 'El nombre del rol es demasiado corto (mínimo :min caracteres).',
+            'name.max'      => 'El nombre del rol no puede exceder los :max caracteres.',
+            'name.regex'    => 'El nombre del rol solo puede contener letras y espacios.',
+            'name.unique'   => 'Ya existe un rol con este nombre, prueba con uno diferente.',
+
+            'description.required' => 'La descripción es obligatoria para ayudar a identificar el propósito del rol.',
+            'description.string'   => 'La descripción debe ser un texto válido.',
+            'description.min'      => 'La descripción debe tener al menos :min caracteres.',
+            'description.max'      => 'La descripción es demasiado larga (máximo :max caracteres).',
+
+            'icon.required' => 'Debes seleccionar un icono representativo para el rol.',
+            'icon.string'   => 'El formato del icono no es válido.',
+            'icon.min'      => 'El nombre del icono es demasiado corto.',
+
             'permission_ids.required' => 'Debe seleccionar al menos un permiso para este rol.',
-            'permission_ids.min' => 'El rol debe de tener asignado al menos :min permiso.',
-            'permission_ids.*.exists' => 'Uno de los permisos seleccionados no es valido o ha sido eliminado.',
+            'permission_ids.array'    => 'El formato de los permisos no es válido.',
+            'permission_ids.min'      => 'El rol debe tener asignado al menos :min permiso.',
+            'permission_ids.*.exists' => 'Uno de los permisos seleccionados no es válido o ha sido eliminado.',
         ];
     }
 }
