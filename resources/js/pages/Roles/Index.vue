@@ -1,52 +1,47 @@
 <script setup lang="ts">
-/* --- IMPORTS --- */
-import { Head, router } from '@inertiajs/vue3';
+/* --- 1. IMPORTS --- */
 import { ref, watch } from 'vue';
-
-// Iconos
+import { Head, router } from '@inertiajs/vue3';
+import { debounce } from 'lodash';
 import { Search } from 'lucide-vue-next';
 
-// Layouts y Componentes de UI
+// Layouts & UI Components
+import AppLayout from '@/layouts/AppLayout.vue';
 import Heading from '@/components/Heading.vue';
 import DataTable from '@/components/ui/datatable/DataTable.vue';
 import { Input } from '@/components/ui/input';
 import LinkButton from '@/components/ui/link/LinkButton.vue';
-import AppLayout from '@/layouts/AppLayout.vue';
 
-// Configuración de Tabla y Rutas
+// Business Logic & Types
 import { columns } from '@/pages/Roles/columns';
 import roles from '@/routes/roles';
-
-// Tipado TypeScript
 import { type BreadcrumbItem } from '@/types';
 import type { Role } from '@/types/models/Role';
-import { debounce } from 'lodash';
 
-/* --- PROPS Y TIPOS --- */
-// Recibe la colección de roles desde el controlador de Laravel
-const props = defineProps<{
-    items: PaginatedData<Role>;
-    filters: { search?: string };
-}>();
-
-const search = ref(props.filters.search ?? '');
-
+/* --- 2. TYPES & INTERFACES --- */
 interface PaginatedData<T> {
     data: T[];
     links: any;
     meta: any;
 }
 
-/* --- ESTADO Y CONFIGURACIÓN --- */
+/* --- 3. PROPS --- */
+const props = defineProps<{
+    items: PaginatedData<Role>;
+    filters: { search?: string };
+}>();
+
+/* --- 4. STATE (Reactividad) --- */
+const search = ref(props.filters.search ?? '');
+
 const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Roles',
-        href: roles.index.url(),
-    },
+    { title: 'Roles', href: roles.index.url() },
 ];
 
-/* --- MÉTODOS DE FILTRADO --- */
-// Búsqueda por server
+/* --- 5. LOGIC & METHODS --- */
+/**
+ * Petición al servidor para filtrar roles
+ */
 const updateSearch = debounce((value: string) => {
     router.get(
         roles.index.url(),
@@ -57,8 +52,9 @@ const updateSearch = debounce((value: string) => {
             preserveScroll: true,
         },
     );
-}, 300);
+}, 350);
 
+/* --- 6. WATCHERS --- */
 watch(search, (newValue) => {
     updateSearch(newValue);
 });

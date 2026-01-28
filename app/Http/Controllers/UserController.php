@@ -50,7 +50,6 @@ class UserController extends Controller
      */
     public function store(StoreUserRequest $request)
     {
-        //User::create($request->validated());
         $this->userService->createUser($request->validated());
         return to_route('users.index')->with('success', 'Usuario creado con exito');
     }

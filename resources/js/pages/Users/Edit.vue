@@ -1,43 +1,38 @@
 <script setup lang="ts">
-import { Head, router, usePage } from '@inertiajs/vue3';
-import { toTypedSchema } from '@vee-validate/zod';
-// --- 2. Iconos ---
-import {
-    Eye,
-    EyeOff,
-    LayoutGrid, // Icono por defecto
-    Lock,
-    Settings,
-    ShieldAlert,
-    ShieldCheck,
-    UserCog,
-    Users,
-} from 'lucide-vue-next';
-import { useForm } from 'vee-validate';
+/* --- 1. IMPORTS --- */
 import { ref, watch } from 'vue';
+import { Head, router, usePage } from '@inertiajs/vue3';
+import { useForm } from 'vee-validate';
+import { toTypedSchema } from '@vee-validate/zod';
 import * as z from 'zod';
 
+// Iconos
+import {
+    Eye, EyeOff, LayoutGrid, Lock, Settings,
+    ShieldAlert, ShieldCheck, UserCog, Users,
+} from 'lucide-vue-next';
+
+// Layouts y UI Components
+import AppLayout from '@/layouts/AppLayout.vue';
 import Heading from '@/components/Heading.vue';
 import { Card, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
     Field,
     FieldError,
     FieldGroup,
     FieldLabel,
 } from '@/components/ui/field';
-import { Input } from '@/components/ui/input';
-import AppLayout from '@/layouts/AppLayout.vue';
+
+// Business Logic & Types
 import users from '@/routes/users';
 import { type BreadcrumbItem } from '@/types';
-import { User } from '@/types/models/User';
-import { Button } from '@/components/ui/button';
+import { type User } from '@/types/models/User';
 
-// Recibimos al usuario como Prop
-const props = defineProps<{
-    user: User;
-    roles: RoleItem[];
-}>();
-
+/* --- 2. TYPES & INTERFACES --- */
 interface RoleItem {
     id: number;
     name: string;
@@ -45,83 +40,68 @@ interface RoleItem {
     icon: string;
 }
 
-const breadcrumbs: BreadcrumbItem[] = [
-    { title: 'Usuarios', href: users.index().url },
-    { title: 'Editar usuario', href: '#' },
-];
+/* --- 3. PROPS --- */
+const props = defineProps<{
+    user: User;
+    roles: RoleItem[];
+}>();
 
-const icons = {
-    ShieldAlert,
-    ShieldCheck,
-    UserCog,
-    Eye,
-    EyeOff,
-    Users,
-    Lock,
-    Settings,
-    LayoutGrid,
-};
-
-const showPassword = ref(false);
-const showConfirmPassword = ref(false);
-
-/**
- * Esquema de validación:
- * En edición, la contraseña suele ser opcional.
- */
-
-const passwordSchema = z
+/* --- 4. VALIDATION SCHEMAS (Zod) --- */
+const passwordRules = z
     .string()
     .min(8, 'Debe tener al menos 8 caracteres')
     .regex(/[a-zA-Z]/, 'Debe contener al menos una letra')
     .regex(/[0-9]/, 'Debe contener al menos un número');
 
 const formSchema = toTypedSchema(
-    z
-        .object({
-            name: z.string().min(5),
-            email: z.string().email(),
-            password: z.union([z.literal(''), passwordSchema]).optional(),
-            // Confirmación también acepta string vacío inicialmente
-            password_confirmation: z.string().optional().or(z.literal('')),
-            // validamos que sea un array de numeros y que contenga al menos uno
-            role_ids: z
-                .array(z.number())
-                .min(1, 'Debes asignar al menos un rol')
-                .default([]),
-        })
-        .refine((values) => values.password === values.password_confirmation, {
-            message: 'Las contraseñas no coinciden',
-            path: ['password_confirmation'], // El error se mostrará en este campo específico
-        }),
+    z.object({
+        name: z.string().min(5, 'El nombre es muy corto'),
+        email: z.string().email('Email inválido'),
+        password: z.union([z.literal(''), passwordRules]).optional(),
+        password_confirmation: z.string().optional().or(z.literal('')),
+        role_ids: z.array(z.number()).min(1, 'Debes asignar al menos un rol'),
+    })
+    .refine((data) => data.password === data.password_confirmation, {
+        message: 'Las contraseñas no coinciden',
+        path: ['password_confirmation'],
+    })
 );
-console.log(props.roles);
+
+/* --- 5. FORM SETUP (Vee-Validate) --- */
 const { handleSubmit, errors, defineField, setErrors, resetForm } = useForm({
     validationSchema: formSchema,
-    // Pre-rellenamos el formulario con los datos del prop
     initialValues: {
         name: props.user.name,
         email: props.user.email,
         password: '',
         password_confirmation: '',
-        role_ids: props.user.roles?.map((r: any) => r.id),
+        role_ids: props.user.roles?.map((r: any) => r.id) ?? [],
     },
-    validateOnMount: false, // Evita errores visuales al cargar la página
+    validateOnMount: false,
 });
 
+// Definición de campos
 const [name, nameProps] = defineField('name', { validateOnModelUpdate: false });
-const [email, emailProps] = defineField('email', {
-    validateOnModelUpdate: false,
-});
-const [password, passwordProps] = defineField('password', {
-    validateOnModelUpdate: false,
-});
-const [password_confirmation, password_confirmationProps] = defineField(
-    'password_confirmation',
-    { validateOnModelUpdate: false },
-);
+const [email, emailProps] = defineField('email', { validateOnModelUpdate: false });
+const [password, passwordProps] = defineField('password', { validateOnModelUpdate: false });
+const [password_confirmation, password_confirmationProps] = defineField('password_confirmation', { validateOnModelUpdate: false });
 const [role_ids] = defineField('role_ids');
 
+/* --- 6. STATE & CONFIG --- */
+const breadcrumbs: BreadcrumbItem[] = [
+    { title: 'Usuarios', href: users.index().url },
+    { title: 'Editar usuario', href: '#' },
+];
+
+const showPassword = ref(false);
+const showConfirmPassword = ref(false);
+
+const icons = {
+    ShieldAlert, ShieldCheck, UserCog, Eye,
+    EyeOff, Users, Lock, Settings, LayoutGrid,
+};
+
+/* --- 7. METHODS --- */
 const toggleRole = (id: number) => {
     const current = [...(role_ids.value ?? [])];
     const index = current.indexOf(id);
@@ -134,20 +114,26 @@ const toggleRole = (id: number) => {
 };
 
 const onSubmit = handleSubmit((values) => {
-    // Usamos el UUID para la ruta y el método PUT/PATCH
-    router.put(users.update(props.user.uuid).url, values);
+    // Limpiamos los campos de password si no se van a actualizar
+    const payload = { ...values };
+    if (!payload.password) {
+        delete payload.password;
+        delete payload.password_confirmation;
+    }
+    
+    router.put(users.update(props.user.uuid).url, payload);
 });
 
-// Observar los errores que vienen desde el servidor (Laravel)
+/* --- 8. WATCHERS --- */
+// Sincronización de errores del servidor
 watch(
     () => usePage().props.errors,
     (serverErrors) => {
         if (serverErrors && Object.keys(serverErrors).length > 0) {
-            // Pasamos los errores directamente a Vee-Validate
             setErrors(serverErrors as Record<string, string>);
         }
     },
-    { deep: true, immediate: true },
+    { deep: true, immediate: true }
 );
 </script>
 

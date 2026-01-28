@@ -1,57 +1,48 @@
 <script setup lang="ts">
-/* --- IMPORTS --- */
-import { ref, watch, type ComponentPublicInstance } from 'vue';
+/* --- 1. IMPORTS (Externos primero, internos después) --- */
+import { ref, watch } from 'vue';
 import { Head, router } from '@inertiajs/vue3';
-import { type Table } from '@tanstack/vue-table';
-
-// Iconos
+import { debounce } from 'lodash';
 import { Search } from 'lucide-vue-next';
 
-// Layouts y Componentes de UI
+// Layouts & UI Components
 import AppLayout from '@/layouts/AppLayout.vue';
 import Heading from '@/components/Heading.vue';
 import DataTable from '@/components/ui/datatable/DataTable.vue';
 import { Input } from '@/components/ui/input';
 import LinkButton from '@/components/ui/link/LinkButton.vue';
 
-
-// Configuración de Tabla y Rutas
+// Business Logic & Types
 import { columns } from '@/pages/Users/columns';
 import users from '@/routes/users';
-
-// Tipado TypeScript
 import { type BreadcrumbItem } from '@/types';
 import type { User } from '@/types/models/User';
-import { debounce } from 'lodash';
 
-/* --- PROPS Y TIPOS --- */
-// Recibe la colección de usuarios desde el controlador de Laravel
-const props = defineProps<{
-    items: PaginatedData<User>;
-    filters: { search: string, };
-}>();
-
-
-const search = ref(props.filters.search ?? '');
-
+/* --- 2. TYPES & INTERFACES --- */
 interface PaginatedData<T> {
     data: T[];
     links: any;
     meta: any;
 }
 
+/* --- 3. PROPS & EMITS --- */
+const props = defineProps<{
+    items: PaginatedData<User>;
+    filters: { search: string };
+}>();
 
-/* --- ESTADO Y CONFIGURACIÓN --- */
+/* --- 4. STATE (Reactividad) --- */
+const search = ref(props.filters.search ?? '');
+
 const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Usuarios',
-        href: users.index.url(),
-    },
+    { title: 'Usuarios', href: users.index.url() },
 ];
 
-/* --- MÉTODOS DE FILTRADO --- */
-// Búsqueda por server
-const updateSearch = debounce((value: string) => {
+/* --- 5. LOGIC & METHODS --- */
+/**
+ * Realiza la petición al servidor con debounce para evitar sobrecarga
+ */
+const performSearch = debounce((value: string) => {
     router.get(
         users.index.url(),
         { search: value },
@@ -59,16 +50,14 @@ const updateSearch = debounce((value: string) => {
             preserveState: true,
             replace: true,
             preserveScroll: true,
-        },
+        }
     );
-}, 300);
+}, 350); // Un poco más de tiempo suele ser más cómodo
 
-
+/* --- 6. WATCHERS --- */
 watch(search, (newValue) => {
-    updateSearch(newValue);
+    performSearch(newValue);
 });
-
-
 </script>
 
 <template>

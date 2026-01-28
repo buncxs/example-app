@@ -1,90 +1,36 @@
 <script setup lang="ts">
-// --- 1. Imports de Librerías Externas ---
-import { Head, router, usePage } from '@inertiajs/vue3';
-import { toTypedSchema } from '@vee-validate/zod';
-import { useForm } from 'vee-validate';
+/* --- 1. IMPORTS --- */
 import { ref, watch } from 'vue';
-import * as z from 'zod'; // Importación estándar de Zod
+import { Head, router, usePage } from '@inertiajs/vue3';
+import { useForm } from 'vee-validate';
+import { toTypedSchema } from '@vee-validate/zod';
+import * as z from 'zod';
 
-// --- 2. Iconos ---
+// Iconos
 import {
-    Eye,
-    EyeOff,
-    LayoutGrid, // Icono por defecto
-    Lock,
-    Settings,
-    ShieldAlert,
-    ShieldCheck,
-    UserCog,
-    Users,
+    Eye, EyeOff, LayoutGrid, Lock, Settings,
+    ShieldAlert, ShieldCheck, UserCog, Users,
 } from 'lucide-vue-next';
 
-// --- 3. Componentes de UI (Shadcn) ---
+// Layouts y UI Components
+import AppLayout from '@/layouts/AppLayout.vue';
+import Heading from '@/components/Heading.vue';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
-
-// --- 4. Componentes Propios y Layouts ---
-import AppLayout from '@/layouts/AppLayout.vue';
-import users from '@/routes/users';
-
-// --- 5. Tipos ---
-import Heading from '@/components/Heading.vue';
 import { Checkbox } from '@/components/ui/checkbox';
-import FieldGroup from '@/components/ui/field/FieldGroup.vue';
+import {
+    Field,
+    FieldError,
+    FieldGroup,
+    FieldLabel,
+} from '@/components/ui/field';
+
+// Business Logic & Types
+import users from '@/routes/users';
 import { type BreadcrumbItem } from '@/types';
 
-// Configuración de la línea de tiempo/navegación
-const breadcrumbs: BreadcrumbItem[] = [
-    { title: 'Usuarios', href: users.index().url },
-    { title: 'Crear usuarios', href: users.create().url },
-];
-
-const icons = {
-    ShieldAlert,
-    ShieldCheck,
-    UserCog,
-    Eye,
-    EyeOff,
-    Users,
-    Lock,
-    Settings,
-    LayoutGrid,
-};
-
-/**
- * Lógica de visibilidad para las contraseñas
- */
-const showPassword = ref(false);
-const showConfirmPassword = ref(false);
-
-/**
- * Esquema de validación con Zod.
- * .refine() se utiliza para comparar campos entre sí (validación cruzada).
- */
-
-const formSchema = toTypedSchema(
-    z
-        .object({
-            name: z.string().min(5),
-            email: z.string().email(),
-            password: z.string().min(8),
-            password_confirmation: z
-                .string()
-                .min(1, 'Debes confirmar la contraseña'),
-            // validamos que sea un array de numeros y que contenga al menos uno
-            role_ids: z
-                .array(z.number())
-                .min(1, 'Debes asignar al menos un rol')
-                .default([]),
-        })
-        .refine((data) => data.password === data.password_confirmation, {
-            message: 'Las contraseñas no coinciden',
-            path: ['password_confirmation'],
-        }),
-);
-
+/* --- 2. TYPES & INTERFACES --- */
 interface RoleItem {
     id: number;
     name: string;
@@ -92,39 +38,60 @@ interface RoleItem {
     icon: string;
 }
 
+/* --- 3. PROPS --- */
 const props = defineProps<{
     roles: RoleItem[];
 }>();
 
-console.log(props.roles);
-/**
- * Inicialización de Vee-Validate con el esquema de Zod.
- */
+/* --- 4. VALIDATION SCHEMAS (Zod) --- */
+const formSchema = toTypedSchema(
+    z.object({
+        name: z.string().min(5, 'El nombre debe tener al menos 5 caracteres'),
+        email: z.string().email('Formato de correo inválido'),
+        password: z.string().min(8, 'La contraseña debe tener al menos 8 caracteres'),
+        password_confirmation: z.string().min(1, 'Debes confirmar la contraseña'),
+        role_ids: z.array(z.number()).min(1, 'Debes asignar al menos un rol'),
+    })
+    .refine((data) => data.password === data.password_confirmation, {
+        message: 'Las contraseñas no coinciden',
+        path: ['password_confirmation'],
+    })
+);
+
+/* --- 5. FORM SETUP (Vee-Validate) --- */
 const { handleSubmit, errors, defineField, setErrors, resetForm } = useForm({
     validationSchema: formSchema,
     initialValues: {
+        name: '',
+        email: '',
+        password: '',
+        password_confirmation: '',
         role_ids: [],
     },
 });
 
-/**
- * Definir los campos
- * Props contiene los eventos (blur, input)
- */
-
+// Definición de campos con validación manual al salir del foco (lazy)
 const [name, nameProps] = defineField('name', { validateOnModelUpdate: false });
-const [email, emailProps] = defineField('email', {
-    validateOnModelUpdate: false,
-});
-const [password, passwordProps] = defineField('password', {
-    validateOnModelUpdate: false,
-});
-const [password_confirmation, password_confirmationProps] = defineField(
-    'password_confirmation',
-    { validateOnModelUpdate: false },
-);
+const [email, emailProps] = defineField('email', { validateOnModelUpdate: false });
+const [password, passwordProps] = defineField('password', { validateOnModelUpdate: false });
+const [password_confirmation, password_confirmationProps] = defineField('password_confirmation', { validateOnModelUpdate: false });
 const [role_ids] = defineField('role_ids');
 
+/* --- 6. STATE & CONFIG --- */
+const breadcrumbs: BreadcrumbItem[] = [
+    { title: 'Usuarios', href: users.index().url },
+    { title: 'Crear usuario', href: '#' },
+];
+
+const showPassword = ref(false);
+const showConfirmPassword = ref(false);
+
+const icons = {
+    ShieldAlert, ShieldCheck, UserCog, Eye, 
+    EyeOff, Users, Lock, Settings, LayoutGrid 
+};
+
+/* --- 7. METHODS --- */
 const toggleRole = (id: number) => {
     const current = [...(role_ids.value ?? [])];
     const index = current.indexOf(id);
@@ -136,24 +103,20 @@ const toggleRole = (id: number) => {
     role_ids.value = current;
 };
 
-/**
- * Manejador de envío del formulario.
- * Solo se ejecuta si todas las validaciones de Zod pasan correctamente.
- */
 const onSubmit = handleSubmit((values) => {
     router.post(users.store().url, values);
 });
 
-// Observar los errores que vienen desde el servidor (Laravel)
+/* --- 8. WATCHERS --- */
+// Captura de errores de validación de Laravel (ej. email duplicado)
 watch(
     () => usePage().props.errors,
     (serverErrors) => {
         if (serverErrors && Object.keys(serverErrors).length > 0) {
-            // Pasamos los errores directamente a Vee-Validate
             setErrors(serverErrors as Record<string, string>);
         }
     },
-    { deep: true, immediate: true },
+    { deep: true, immediate: true }
 );
 </script>
 
@@ -187,7 +150,7 @@ watch(
                                 </Field>
                                 <Field>
                                     <FieldLabel for="email"
-                                        >Correo Electrónico</FieldLabel
+                                        >Correo electrónico</FieldLabel
                                     >
                                     <Input
                                         id="email"

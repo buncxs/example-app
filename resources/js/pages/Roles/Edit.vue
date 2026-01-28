@@ -1,8 +1,9 @@
 <script setup lang="ts">
+/* --- 1. IMPORTS --- */
 import { watch } from 'vue';
 import { Head, router, usePage } from '@inertiajs/vue3';
-import { toTypedSchema } from '@vee-validate/zod';
 import { useForm } from 'vee-validate';
+import { toTypedSchema } from '@vee-validate/zod';
 import * as z from 'zod';
 
 // UI Components
@@ -14,14 +15,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Field, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 
-// Utils & Routes
+// Business Logic & Types
 import roles from '@/routes/roles';
 import { type BreadcrumbItem } from '@/types';
-import { Role } from '@/types/models/Role';
+import { type Role } from '@/types/models/Role';
 
-/**
- * --- DEFINICIÓN DE TIPOS ---
- */
+/* --- 2. TYPES & INTERFACES --- */
 interface PermissionItem {
     id: number | string;
     name: string;
@@ -29,72 +28,64 @@ interface PermissionItem {
     display_name: string;
 }
 
-/**
- * --- PROPS & NAVEGACIÓN ---
- */
+/* --- 3. PROPS --- */
 const props = defineProps<{
     role: Role;
     permissions: Record<string, PermissionItem[]>;
 }>();
 
-const breadcrumbs: BreadcrumbItem[] = [
-    { title: 'Roles', href: roles.index().url },
-    { title: 'Editar Rol', href: '#' },
-];
-
-/**
- * --- VALIDACIÓN Y FORMULARIO ---
- * Usamos Zod para definir las reglas de negocio y Vee-Validate para el estado del form.
- */
+/* --- 4. VALIDATION SCHEMAS (Zod) --- */
 const formSchema = toTypedSchema(
     z.object({
         name: z.string().min(4, 'El nombre debe tener al menos 4 caracteres'),
-        description: z.string().min(5),
-        icon: z.string().min(3),
+        description: z.string().min(5, 'La descripción es muy corta'),
+        icon: z.string().min(3, 'El icono es requerido'),
         permission_ids: z
             .array(z.number())
             .min(1, 'Selecciona al menos un permiso')
             .default([]),
-    }),
+    })
 );
 
+/* --- 5. FORM SETUP (Vee-Validate) --- */
 const {
     handleSubmit,
     errors,
     defineField,
     setErrors,
-    resetForm,
     setFieldValue,
-    values,
+    resetForm,
 } = useForm({
     validationSchema: formSchema,
     initialValues: { 
         name: props.role.name, 
         description: props.role.description,
         icon: props.role.icon,
+        // Mapeamos los permisos actuales del rol para el formulario
         permission_ids: props.role.permissions?.map(p => p.id) ?? [] 
     },
-    validateOnMount: false, // Evita errores visuales al cargar la página
+    validateOnMount: false,
 });
 
-// Definición de campos individuales
-// validateOnModelUpdate: false evita que valide mientras el usuario escribe
+// Definición de campos
 const [name, nameProps] = defineField('name', { validateOnModelUpdate: false });
 const [description, descriptionProps] = defineField('description', { validateOnModelUpdate: false });
 const [icon, iconProps] = defineField('icon', { validateOnModelUpdate: false });
+const [permission_ids] = defineField('permission_ids');
 
+/* --- 6. STATE & CONFIG --- */
+const breadcrumbs: BreadcrumbItem[] = [
+    { title: 'Roles', href: roles.index().url },
+    { title: 'Editar Rol', href: '#' },
+];
 
-/**
- * --- ACCIONES / HANDLERS ---
- */
+/* --- 7. METHODS --- */
 const onSubmit = handleSubmit((formValues) => {
     router.put(roles.update(props.role.id).url, formValues);
 });
 
-/**
- * --- WATCHERS ---
- * Sincronización de errores desde el servidor (Inertia) hacia el formulario local.
- */
+/* --- 8. WATCHERS --- */
+// Sincronización de errores desde Laravel (Inertia)
 watch(
     () => usePage().props.errors,
     (serverErrors) => {
@@ -102,7 +93,7 @@ watch(
             setErrors(serverErrors as Record<string, string>);
         }
     },
-    { deep: true },
+    { deep: true, immediate: true }
 );
 </script>
 
@@ -170,7 +161,7 @@ watch(
 
             <PermissionSelector
                 :permissions="permissions"
-                :model-value="values.permission_ids ?? []"
+                :model-value="permission_ids ?? []"
                 @update:model-value="setFieldValue('permission_ids', $event)"
             />
 
