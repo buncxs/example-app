@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -18,8 +17,8 @@ Route::get('dashboard', function () {
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 
-Route::resource('users', UserController::class)->except(['show']);
-Route::resource('roles', RoleController::class)->except(['show']);
+Route::resource('users', UserController::class)->except(['show'])->middleware(['auth', 'verified']);
+Route::resource('roles', RoleController::class)->except(['show'])->middleware(['auth', 'verified']);
 
 
 require __DIR__.'/settings.php';

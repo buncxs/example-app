@@ -2,9 +2,10 @@
 
 namespace App\Providers;
 
-use Illuminate\Auth\Notifications\VerifyEmail;
+
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -14,7 +15,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
     }
 
     /**
@@ -24,5 +24,12 @@ class AppServiceProvider extends ServiceProvider
     {
         // Esto quita el primer nivel de "data" en los Resources
         JsonResource::withoutWrapping();
+
+        // "Intercepta" todas las comprobaciones de permisos
+        Gate::before(function ($user, $ability){ 
+            return $user->hasRole('Super Administrador') ? true : null;
+        });
+
+
     }
 }
