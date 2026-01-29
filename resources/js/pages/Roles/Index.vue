@@ -4,6 +4,7 @@ import { ref, watch } from 'vue';
 import { Head, router } from '@inertiajs/vue3';
 import { debounce } from 'lodash';
 import { Search } from 'lucide-vue-next';
+import { useAuth } from '@/composables/useAuth';
 
 // Layouts & UI Components
 import AppLayout from '@/layouts/AppLayout.vue';
@@ -13,10 +14,13 @@ import { Input } from '@/components/ui/input';
 import LinkButton from '@/components/ui/link/LinkButton.vue';
 
 // Business Logic & Types
-import { columns } from '@/pages/Roles/columns';
+import { getColumns } from '@/pages/Roles/columns';
 import roles from '@/routes/roles';
 import { type BreadcrumbItem } from '@/types';
 import type { Role } from '@/types/models/Role';
+
+const { can } = useAuth();
+const columns = getColumns(can);
 
 /* --- 2. TYPES & INTERFACES --- */
 interface PaginatedData<T> {
@@ -79,8 +83,9 @@ watch(search, (newValue) => {
                     />
                 </div>
             </div>
-
+            
             <LinkButton
+                v-if="can('roles.create')"
                 :href="roles.create()"
                 class="min-w-[100px] shadow-xl shadow-primary/20"
             >

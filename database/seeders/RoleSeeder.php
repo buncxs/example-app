@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Spatie\Permission\Models\Role;
 
 class RoleSeeder extends Seeder
 {
@@ -13,7 +14,8 @@ class RoleSeeder extends Seeder
      */
     public function run(): void
     {
-        DB::table('roles')->insert([
+
+        $roles = [
             [
                 'name' => 'Super Administrador',
                 'guard_name' => 'web',
@@ -38,6 +40,11 @@ class RoleSeeder extends Seeder
                 'description' => 'Acceso de solo lectura',
                 'icon' => 'Eye',
             ],
-        ]);
+        ];
+
+        foreach($roles as $role){
+            Role::create($role);
+        }
+
     }
 }

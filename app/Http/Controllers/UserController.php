@@ -14,8 +14,13 @@ use Spatie\Permission\Models\Role;
 class UserController extends Controller
 {
 
-
-    public function __construct(protected UserService $userService){}
+    public function __construct(protected UserService $userService)
+    {
+        $this->middleware('permission:users.view')->only(['index']);
+        $this->middleware('permission:users.create')->only(['create', 'store']);
+        $this->middleware('permission:users.edit')->only(['edit', 'update']);
+        $this->middleware('permission:users.delete')->only(['destroy']);
+    }
 
     /**
      * Display a listing of the resource.
@@ -23,10 +28,10 @@ class UserController extends Controller
     public function index(Request $request)
     {
         $users = User::select('id', 'uuid', 'name', 'email')
-        ->when($request->search, function($query, $search) {
-            $query->where('name', 'like', "%{$search}%");
-        })
-        ->paginate(10)->withQueryString();
+            ->when($request->search, function ($query, $search) {
+                $query->where('name', 'like', "%{$search}%");
+            })
+            ->paginate(10)->withQueryString();
 
         return Inertia::render('Users/Index', [
             'items' => UserResource::collection($users),
@@ -72,7 +77,7 @@ class UserController extends Controller
     {
         $this->userService->updateUser($user, $request->validated());
         return to_route('users.index')
-        ->with('success', "El usuario {$user->name} ha sido actualizado");
+            ->with('success', "El usuario {$user->name} ha sido actualizado");
     }
 
     /**

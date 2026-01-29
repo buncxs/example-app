@@ -18,7 +18,7 @@ class PermissionSeeder extends Seeder
                 ['name' => 'users.view', 'guard_name' => 'web', 'module' => 'users'],
                 ['name' => 'users.create', 'guard_name' => 'web', 'module' => 'users'],
                 ['name' => 'users.edit', 'guard_name' => 'web', 'module' => 'users'],
-                ['name' => 'users.delte', 'guard_name' => 'web', 'module' => 'users'],
+                ['name' => 'users.delete', 'guard_name' => 'web', 'module' => 'users'],
                 ['name' => 'roles.view', 'guard_name' => 'web', 'module' => 'roles'],
                 ['name' => 'roles.create', 'guard_name' => 'web', 'module' => 'roles'],
                 ['name' => 'roles.edit', 'guard_name' => 'web', 'module' => 'roles'],

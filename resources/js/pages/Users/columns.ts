@@ -6,7 +6,8 @@ import { ColumnDef } from '@tanstack/vue-table';
 import { Edit, Trash2 } from 'lucide-vue-next';
 import { h } from 'vue';
 
-export const columns: ColumnDef<User>[] = [
+
+export const getColumns = (can:(p: string) => boolean): ColumnDef<User>[] => [
     {
         id: 'index',
         header: () => h('div', { class: 'text-center font-bold' }, 'No'),
@@ -29,28 +30,35 @@ export const columns: ColumnDef<User>[] = [
         id: 'actions',
         cell: ({ row }) => {
             const user = row.original;
+            const actions = [];
+            if(can('users.edit')){
+                actions.push(
+                {
+                    label: 'Editar',
+                    icon: Edit,
+                    href: users.edit(user.uuid).url,
+                },
+            );
+            }
+            if(can('users.delete')){
+                actions.push({
+                    label: 'Eliminar',
+                    icon: Trash2,
+                    requiresConfirmation: true,
+                    callback: () => {
+                        router.delete(users.destroy(user.uuid).url, {
+                            preserveScroll: true,
+                        });
+                    },
+                });
+            }
 
             return h(DataTableCellActions, {
                 title: 'Acciones',
-                actions: [
-                    {
-                        label: 'Editar',
-                        icon: Edit,
-                        href: users.edit(user.uuid).url,
-                    },
-                    {
-                        label: 'Eliminar',
-                        icon: Trash2,
-                        requiresConfirmation: true,
-                        callback: () => {
-                            router.delete(users.destroy(user.uuid).url, {
-                                preserveScroll: true,
-                            });
-                        },
-                    },
-                ],
+                actions: actions,
             });
         },
         size: 40,
     },
 ];
+

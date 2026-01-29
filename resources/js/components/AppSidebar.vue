@@ -17,30 +17,43 @@ import roles from '@/routes/roles'
 import { type NavItem } from '@/types';
 import { Link, usePage } from '@inertiajs/vue3';
 import { BookOpen, Folder, LayoutGrid, Users, Shield } from 'lucide-vue-next';
+import { useAuth } from '@/composables/useAuth';
 import AppLogo from './AppLogo.vue';
+import { computed } from 'vue';
 
 const page = usePage();
 
+const { can, is } = useAuth();
 
-const mainNavItems: NavItem[] = [
-    {
-        title: 'Dashboard',
-        href: dashboard(),
-        icon: LayoutGrid,
-    },
-    {
-        title: 'Usuarios',
-        href: users.index(),
-        icon: Users,
-        isActive: page.url.startsWith('/users'),
-    },
-    {
-        title: 'Roles',
-        href: roles.index(),
-        icon: Shield,
-        isActive: page.url.startsWith('/roles'),
-    },
-];
+const mainNavItems = computed((): NavItem[] => {
+    const items: NavItem[] = [
+        {
+            title: 'Dashboard',
+            href: dashboard(),
+            icon: LayoutGrid,
+        },
+
+    ];
+
+    if(can('users.view')){
+        items.push({
+            title: 'Usuarios',
+            href: users.index(),
+            icon: Users,
+            isActive: page.url.startsWith('/users'),
+        });
+    }
+    if(can('roles.view')){
+        items.push({
+            title: 'Roles',
+            href: roles.index(),
+            icon: Shield,
+            isActive: page.url.startsWith('/roles'),
+        });
+    }
+
+    return items;
+});
 
 const footerNavItems: NavItem[] = [
     {

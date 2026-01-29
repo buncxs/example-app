@@ -6,7 +6,7 @@ import { ColumnDef } from '@tanstack/vue-table';
 import { Edit, Trash2 } from 'lucide-vue-next';
 import { h } from 'vue';
 
-export const columns: ColumnDef<Role>[] = [
+export const getColumns = (can: (p: string)=> boolean): ColumnDef<Role>[] => [
     {
         id: 'index',
         header: () => h('div', { class: 'text-center font-bold' }, 'No'),
@@ -27,27 +27,36 @@ export const columns: ColumnDef<Role>[] = [
         id: 'actions',
         cell: ({ row }) => {
             const role = row.original;
+            const actions = [];
+            
+            if(can('roles.edit')){
+                actions.push(
+                    {
+                        label: 'Editar',
+                        icon: Edit,
+                        href: roles.edit(role.id).url,
+                    },
+                );
+            }
+            if(can('roles.delete')){
+                actions.push(
+                    {
+                        label: 'Eliminar',
+                        icon: Trash2,
+                        requiresConfirmation: true,
+                        callback: () => {
+                            router.delete(roles.destroy(role.id), {
+                                preserveScroll: true,
+                            });
+                        },
+                    },
+                ); 
+            }
 
             return h('div', { class: 'flex justify-center' }, [
                 h(DataTableCellActions, {
                     title: 'Acciones',
-                    actions: [
-                        {
-                            label: 'Editar',
-                            icon: Edit,
-                            href: roles.edit(role.id).url,
-                        },
-                        {
-                            label: 'Eliminar',
-                            icon: Trash2,
-                            requiresConfirmation: true,
-                            callback: () => {
-                                router.delete(roles.destroy(role.id), {
-                                    preserveScroll: true,
-                                });
-                            },
-                        },
-                    ],
+                    actions: actions,
                 }),
             ]);
         },

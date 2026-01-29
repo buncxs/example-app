@@ -12,13 +12,18 @@ Route::get('/', function () {
     ]);
 })->name('home');
 
-Route::get('dashboard', function () {
-    return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+
+Route::middleware(['auth', 'verified'])->group(function () {
+
+    Route::get('dashboard', function () {
+        return Inertia::render('Dashboard');
+    })->name('dashboard');
+
+    // Usuarios
+    Route::resource('users', UserController::class)->except(['show']);
+    Route::resource('roles', RoleController::class)->except(['show']);
+        
+});
 
 
-Route::resource('users', UserController::class)->except(['show'])->middleware(['auth', 'verified']);
-Route::resource('roles', RoleController::class)->except(['show'])->middleware(['auth', 'verified']);
-
-
-require __DIR__.'/settings.php';
+require __DIR__ . '/settings.php';
