@@ -1,7 +1,7 @@
 import DataTableCellActions from '@/components/ui/datatable/DataTableCellActions.vue';
 import users from '@/routes/users';
 import { User } from '@/types/models/User';
-import { router } from '@inertiajs/vue3';
+import { Link, router } from '@inertiajs/vue3';
 import { ColumnDef } from '@tanstack/vue-table';
 import { Edit, Trash2 } from 'lucide-vue-next';
 import { h } from 'vue';
@@ -18,7 +18,16 @@ export const getColumns = (can:(p: string) => boolean): ColumnDef<User>[] => [
     {
         accessorKey: 'name',
         header: () => h('div', { class: ' font-bold' }, 'Nombre'),
-        cell: ({ row }) => h('div', { class: '' }, row.getValue('name')),
+        cell: ({ row }) => {
+            return h(
+                Link,
+                {
+                    href: `/users/${row.original.uuid}`,
+                    class: 'inline-block transition-all duration-200 ease-out hover:text-blue-600 active:scale-95'
+                },
+                () => row.getValue('name')
+            );
+        },
     },
     {
         accessorKey: 'email',

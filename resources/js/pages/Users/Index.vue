@@ -62,6 +62,8 @@ const performSearch = debounce((value: string) => {
 watch(search, (newValue) => {
     performSearch(newValue);
 });
+
+console.log(props.items.data)
 </script>
 
 <template>

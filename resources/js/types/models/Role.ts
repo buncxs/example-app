@@ -6,6 +6,7 @@ export interface Role {
     permissions?: {
         id: number;
         name: string;
+        module?: string;
     }[],
     
 }

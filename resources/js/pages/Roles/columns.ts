@@ -1,7 +1,7 @@
 import DataTableCellActions from '@/components/ui/datatable/DataTableCellActions.vue';
 import roles from '@/routes/roles';
 import { Role } from '@/types/models/Role';
-import { router } from '@inertiajs/vue3';
+import { Link, router } from '@inertiajs/vue3';
 import { ColumnDef } from '@tanstack/vue-table';
 import { Edit, Trash2 } from 'lucide-vue-next';
 import { h } from 'vue';
@@ -15,8 +15,17 @@ export const getColumns = (can: (p: string)=> boolean): ColumnDef<Role>[] => [
     },
     {
         accessorKey: 'name',
-        header: () => h('div', { class: ' font-bold text-left' }, 'Nombre'),
-        cell: ({ row }) => h('div', { class: '' }, row.getValue('name')),
+        header: () => h('div', { class: ' font-bold' }, 'Nombre'),
+        cell: ({ row }) => {
+            return h(
+                Link,
+                {
+                    href: `/roles/${row.original.id}`,
+                    class: 'inline-block transition-all duration-200 ease-out hover:text-blue-600 active:scale-95'
+                },
+                () => row.getValue('name')
+            );
+        },
     },
     {
         accessorKey: 'description',

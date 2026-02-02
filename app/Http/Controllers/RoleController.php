@@ -7,19 +7,25 @@ use App\Http\Requests\Role\UpdateRoleRequest;
 use App\Http\Resources\RoleResource;
 use App\Services\RoleService;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 use Inertia\Inertia;
 use Inertia\Response;
 use Spatie\Permission\Models\Role;
 
-class RoleController extends Controller
+class RoleController extends Controller implements HasMiddleware
 {
 
-    public function __construct(protected RoleService $roleService) 
+    public function __construct(protected RoleService $roleService){}
+
+    public static function middleware(): array
     {
-        $this->middleware('permission:roles.view')->only(['index']);
-        $this->middleware('permission:roles.create')->only(['create', 'store']);
-        $this->middleware('permission:roles.edit')->only(['edit', 'update']);
-        $this->middleware('permission:roles.delete')->only(['destroy']);
+        return [
+            new Middleware('permission:roles.view', only: ['index']),
+            new Middleware('permission:roles.create', only: ['create', 'store']),
+            new Middleware('permission:roles.edit', only: ['edit', 'update']),
+            new Middleware('permission:roles.delete', only: ['destroy']),
+        ];
     }
 
     /**
@@ -28,7 +34,6 @@ class RoleController extends Controller
     public function index(Request $request) : Response
     {
         $roles = Role::select('id', 'name', 'description', 'icon')
-            ->with('permissions:id,name')
             ->when($request->search, function ($query, $search) {
                 $query->where('name', 'like', "%{$search}%");
             })
@@ -64,16 +69,25 @@ class RoleController extends Controller
         }
     }
 
+    public function show(Role $role) : Response
+    {
+        return Inertia::render('Roles/Show', [
+            'role' => RoleResource::make($role->load('permissions:id,name,module')),
+        ]);
+    }
+
+
     /**
      * Show the form for editing the specified resource.
      */
     public function edit(Role $role) : Response
     {
         return Inertia::render('Roles/Edit', [
-            'role' => RoleResource::make($role->load('permissions:id,name')),
+            'role' => RoleResource::make($role->load('permissions:id')),
             'permissions' => $this->roleService->getGroupedPermissions(),
         ]);
     }
+    
 
     /**
      * Update the specified resource in storage.

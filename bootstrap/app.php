@@ -6,7 +6,9 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets;
-
+use Illuminate\Http\Request;
+use Inertia\Inertia;
+use Symfony\Component\HttpFoundation\Response;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -29,8 +31,36 @@ return Application::configure(basePath: dirname(__DIR__))
             'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
         ]);
 
-
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        $exceptions->respond(function (Response $response, Throwable $exception, Request $request) {
+            $status = $response->getStatusCode();
+
+            // Definimos qué errores queremos que carguen nuestra vista de Shadcn
+            $errorPages = [403, 404, 500, 503];
+
+            if (in_array($status, $errorPages)) {
+                return Inertia::render('Error', [
+                    'status' => $status,
+                    'title' => match ($status) {
+                        403 => 'Acceso Denegado',
+                        404 => 'Página no Encontrada',
+                        500 => 'Error en el Servidor',
+                        503 => 'Servicio en Mantenimiento',
+                        default => 'Error Inesperado',
+                    },
+                    'message' => match ($status) {
+                        403 => 'No tienes los permisos necesarios para realizar esta acción.',
+                        404 => 'Lo sentimos, la página que estás buscando no existe.',
+                        500 => 'Algo salió mal en nuestros servidores. Inténtalo de nuevo más tarde.',
+                        503 => 'Estamos realizando tareas de mantenimiento. Volveremos pronto.',
+                        default => 'Ha ocurrido un error inesperado en la aplicación.',
+                    },
+                ])
+                ->toResponse($request)
+                ->setStatusCode($status);
+            }
+
+            return $response;
+        });
     })->create();

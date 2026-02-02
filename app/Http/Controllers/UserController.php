@@ -8,19 +8,26 @@ use App\Http\Resources\UserResource;
 use App\Models\User;
 use App\Services\UserService;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 use Inertia\Inertia;
 use Spatie\Permission\Models\Role;
 
-class UserController extends Controller
+class UserController extends Controller implements HasMiddleware
 {
 
-    public function __construct(protected UserService $userService)
+    public function __construct(protected UserService $userService){}
+
+    public static function middleware()
     {
-        $this->middleware('permission:users.view')->only(['index']);
-        $this->middleware('permission:users.create')->only(['create', 'store']);
-        $this->middleware('permission:users.edit')->only(['edit', 'update']);
-        $this->middleware('permission:users.delete')->only(['destroy']);
+        return [
+            new Middleware('permission:users.view', only: ['index', 'show']),
+            new Middleware('permission:users.create', only: ['create', 'store']),
+            new Middleware('permission:users.edit', only: ['edit', 'update']),
+            new Middleware('permission:users.delete', only: ['destroy']),
+        ];
     }
+
 
     /**
      * Display a listing of the resource.
@@ -36,6 +43,13 @@ class UserController extends Controller
         return Inertia::render('Users/Index', [
             'items' => UserResource::collection($users),
             'filters' => $request->only(['search'])
+        ]);
+    }
+
+    public function show(User $user)
+    {
+        return Inertia::render('Users/Show', [
+            'user' => $user->load('roles')
         ]);
     }
 

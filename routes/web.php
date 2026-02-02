@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CatalogController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -19,9 +20,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         return Inertia::render('Dashboard');
     })->name('dashboard');
 
-    // Usuarios
-    Route::resource('users', UserController::class)->except(['show']);
-    Route::resource('roles', RoleController::class)->except(['show']);
+    Route::resource('users', UserController::class);
+    Route::resource('roles', RoleController::class);
+
+    // Catalogs
+    Route::get('/catalogs', [CatalogController::class, 'index'])->name('catalogs.index');
         
 });
 

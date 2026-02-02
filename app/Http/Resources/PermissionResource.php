@@ -16,10 +16,11 @@ class PermissionResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'name' => $this->name,
-            'module' => $this->module,
-            'display_name' => str_contains($this->name, '.') ?
-            explode('.', $this->name)[1] : $this->name
+            'name' => $this->whenHas('name'),
+            'module' => $this->whenHas('module'),
+            'display_name' => $this->when($this->name, function() {
+                return str_contains($this->name, '.') ? explode('.', $this->name)[1] : $this->name;
+            })
         ];
     }
 }

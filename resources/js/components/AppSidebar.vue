@@ -13,10 +13,11 @@ import {
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
 import users from '@/routes/users';
-import roles from '@/routes/roles'
+import roles from '@/routes/roles';
+import catalogs from '@/routes/catalogs';
 import { type NavItem } from '@/types';
 import { Link, usePage } from '@inertiajs/vue3';
-import { BookOpen, Folder, LayoutGrid, Users, Shield } from 'lucide-vue-next';
+import { BookOpen, Folder, LayoutGrid, Users, Shield, Library } from 'lucide-vue-next';
 import { useAuth } from '@/composables/useAuth';
 import AppLogo from './AppLogo.vue';
 import { computed } from 'vue';
@@ -31,6 +32,11 @@ const mainNavItems = computed((): NavItem[] => {
             title: 'Dashboard',
             href: dashboard(),
             icon: LayoutGrid,
+        },
+        {
+            title: 'Catalogos',
+            href: catalogs.index(),
+            icon: Library,
         },
 
     ];
@@ -56,11 +62,6 @@ const mainNavItems = computed((): NavItem[] => {
 });
 
 const footerNavItems: NavItem[] = [
-    {
-        title: 'Github Repo',
-        href: 'https://github.com/laravel/vue-starter-kit',
-        icon: Folder,
-    },
     {
         title: 'Documentation',
         href: 'https://laravel.com/docs/starter-kits#vue',
