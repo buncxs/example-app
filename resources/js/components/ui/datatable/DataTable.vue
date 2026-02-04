@@ -85,14 +85,19 @@ const table = useVueTable({
         get expanded() {
             return expanded.value;
         },
-        // USA EL ENCADENAMIENTO OPCIONAL (?.) Y VALORES POR DEFECTO (??) AQUÍ:
-        pagination: { 
-            pageIndex: (props.paginationData?.meta?.current_page ?? 1) - 1, 
-            pageSize: props.paginationData?.meta?.per_page ?? 10 
+        get pagination() {
+            return {
+                pageIndex: (props.paginationData?.meta?.current_page ?? 1) - 1,
+                pageSize: props.paginationData?.meta?.per_page ?? 10
+            }
         },
     },
+    meta: {
+        get current_page() { return props.paginationData?.meta?.current_page ?? 1 },
+        get per_page() { return props.paginationData?.meta?.per_page ?? 10 },
+    },
     manualPagination: true,
-    pageCount: props.paginationData?.meta?.last_page ?? 1,
+    get pageCount() { return props.paginationData?.meta?.last_page ?? 1 },
 });
 
 defineExpose({ table });

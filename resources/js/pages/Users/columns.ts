@@ -11,8 +11,15 @@ export const getColumns = (can:(p: string) => boolean): ColumnDef<User>[] => [
     {
         id: 'index',
         header: () => h('div', { class: 'text-center font-bold' }, 'No'),
-        cell: ({ row }) =>
-            h('div', { class: 'text-center' }, row.index + 1),
+        cell: ({ row, table }) =>{
+            const meta = table.options.meta;
+            const page = meta?.current_page ?? 1;
+            const perPage = meta?.per_page ?? 10;
+        
+            const continuousIndex = (page - 1) * perPage + (row.index + 1);
+            return h('div', { class: 'text-center' }, continuousIndex);
+            
+        },
         size: 10,
     },
     {
