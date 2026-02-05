@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import LinkButton from '../link/LinkButton.vue';
 import { computed } from 'vue';
+import LinkButton from '../link/LinkButton.vue';
 
 interface Props {
     links: {
@@ -23,29 +23,35 @@ const hasPagination = computed(() => props.meta.last_page > 1);
 </script>
 
 <template>
-    <div v-if="hasPagination" class="flex items-center justify-between border-t bg-gray-50 px-4 py-2">
+    <div
+        v-if="hasPagination"
+        class="flex items-center justify-between border-t bg-gray-50 px-4 py-2"
+    >
         <div class="flex gap-2">
-            <LinkButton 
-                :href="links.prev ?? '#'" 
-                :disabled="!links.prev" 
-                size="sm" 
-                preserve-scroll
+            <LinkButton
+                :href="links.prev ?? ''"
+                :disabled="!links.prev"
+                size="sm"
+                :preserve-scroll="true"
+                :preserve-state="true"
             >
                 <
             </LinkButton>
-            
-            <LinkButton 
-                :href="links.next ?? '#'" 
-                :disabled="!links.next" 
-                size="sm" 
-                preserve-scroll
+
+            <LinkButton
+                :href="links.next ?? ''"
+                :disabled="!links.next"
+                size="sm"
+                :preserve-scroll="true"
+                :preserve-state="true"
             >
                 >
             </LinkButton>
         </div>
 
-        <div class="hidden sm:block text-sm text-gray-600">
-            Mostrando {{ meta.from }} a {{ meta.to }} de {{ meta.total }} resultados
+        <div class="hidden text-sm text-gray-600 sm:block">
+            Mostrando {{ meta.from }} a {{ meta.to }} de
+            {{ meta.total }} resultados
         </div>
 
         <span class="text-sm text-gray-600">

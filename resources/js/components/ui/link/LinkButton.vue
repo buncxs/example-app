@@ -17,6 +17,11 @@ const props = defineProps<Props>();
     <Link
         data-slot="link-button"
         :href="props.disabled ? '' : props.href"
+        
+        :preserve-scroll="props.preserveScroll"
+        :preserve-state="props.preserveState"
+        :only="props.only"
+        
         :class="
             cn(
                 linkVariants({ variant: props.variant, size: props.size }),
@@ -25,6 +30,7 @@ const props = defineProps<Props>();
                     'pointer-events-none cursor-not-allowed opacity-50',
             )
         "
+        v-bind="$attrs"
     >
         <slot />
     </Link>
