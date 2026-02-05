@@ -102,93 +102,89 @@ watch(
     <Head title="Editar rol" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <Heading
-            title="Editar rol"
-            description="Modifica el nombre o los permisos correspondientes para este nivel de acceso."
-        />
-
-        <form @submit.prevent="onSubmit" class="mt-6 space-y-8 pb-10">
-            <Card>
-                <CardHeader class="pb-3">
-                    <CardTitle
-                        class="text-sm font-semibold tracking-wider text-muted-foreground uppercase"
-                    >
-                        Información General
-                    </CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <FieldGroup>
-                        <Field>
-                            <FieldLabel for="name" class="text-foreground"
-                                >Nombre del Rol</FieldLabel
-                            >
-                            <Input
-                                id="name"
-                                v-model="name"
-                                v-bind="nameProps"
-                                placeholder="Ej: Administrador Jefe"
-                                :class="{
-                                    'border-destructive focus-visible:ring-destructive':
-                                        errors.name,
-                                }"
-                            />
-                            <FieldError>{{ errors.name }}</FieldError>
-                        </Field>
-                        <Field>
-                            <FieldLabel for="description" class="text-foreground">Descripción</FieldLabel>
-                            <Input
-                                id="description"
-                                v-model="description"
-                                v-bind="descriptionProps"
-                                placeholder="Acceso total a todos los módulos y configuración del sistema."
-                                :class="{ 'border-destructive focus-visible:ring-destructive': errors.description }"
-                            />
-                            <FieldError>{{ errors.description }}</FieldError>
-                        </Field>
-                        <Field>
-                            <FieldLabel for="icon" class="text-foreground">Icono</FieldLabel>
-                            <Input
-                                id="icon"
-                                v-model="icon"
-                                v-bind="iconProps"
-                                placeholder="Icono de la libreria lucide-vue-next"
-                                :class="{ 'border-destructive focus-visible:ring-destructive': errors.icon }"
-                            />
-                            <FieldError>{{ errors.icon }}</FieldError>
-                        </Field>
-                    </FieldGroup>
-                </CardContent>
-            </Card>
-
-            <PermissionSelector
-                :permissions="permissions"
-                :model-value="permission_ids ?? []"
-                @update:model-value="setFieldValue('permission_ids', $event)"
+        <div class="mx-auto max-w-4xl">
+            <Heading
+                title="Editar rol"
+                description="Modifica el nombre o los permisos correspondientes para este nivel de acceso."
             />
 
-            <FieldError v-if="errors.permission_ids">
-            
-                <p class="mt-4 animate-in fade-in zoom-in rounded-lg bg-destructive/10 p-2 text-center text-sm font-bold text-destructive">
-                    ⚠ {{ errors.permission_ids }}
-                </p>
-            </FieldError>
+            <form @submit.prevent="onSubmit" class="mt-8 space-y-8 pb-10">
+                <Card class="shadow-sm">
+                    <CardHeader class="pb-3 border-b bg-muted/20">
+                        <CardTitle class="text-xs font-bold tracking-widest text-muted-foreground uppercase">
+                            Información General
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent class="pt-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <Field class="md:col-span-1">
+                                <FieldLabel for="name" class="font-semibold">Nombre del Rol</FieldLabel>
+                                <Input
+                                    id="name"
+                                    v-model="name"
+                                    v-bind="nameProps"
+                                    placeholder="Ej: Administrador Jefe"
+                                    :class="{ 'border-destructive focus-visible:ring-destructive': errors.name }"
+                                />
+                                <FieldError>{{ errors.name }}</FieldError>
+                            </Field>
 
-            <div class="flex items-center justify-end gap-3 border-t pt-6">
-                <Button
-                    variant="ghost"
-                    type="button"
-                    @click="resetForm()"
-                    class="rounded-full"
-                >
-                    Cancelar
-                </Button>
-                <Button
-                    type="submit"
-                    class="min-w-[120px] shadow-xl shadow-primary/20"
-                >
-                    Guardar
-                </Button>
-            </div>
-        </form>
+                            <Field class="md:col-span-1">
+                                <FieldLabel for="icon" class="font-semibold">Icono (Lucide)</FieldLabel>
+                                <Input
+                                    id="icon"
+                                    v-model="icon"
+                                    v-bind="iconProps"
+                                    placeholder="Ej: shield, user, settings"
+                                    :class="{ 'border-destructive focus-visible:ring-destructive': errors.icon }"
+                                />
+                                <FieldError>{{ errors.icon }}</FieldError>
+                            </Field>
+
+                            <Field class="md:col-span-2">
+                                <FieldLabel for="description" class="font-semibold">Descripción</FieldLabel>
+                                <Input
+                                    id="description"
+                                    v-model="description"
+                                    v-bind="descriptionProps"
+                                    placeholder="Describe brevemente las responsabilidades de este rol..."
+                                    :class="{ 'border-destructive focus-visible:ring-destructive': errors.description }"
+                                />
+                                <FieldError>{{ errors.description }}</FieldError>
+                            </Field>
+                        </div>
+                    </CardContent>
+                </Card>
+
+                <PermissionSelector
+                    :permissions="permissions"
+                    :model-value="permission_ids ?? []"
+                    @update:model-value="setFieldValue('permission_ids', $event)"
+                />
+
+                <FieldError v-if="errors.permission_ids">
+                    <p class="animate-in fade-in zoom-in rounded-lg bg-destructive/10 p-3 text-center text-sm font-bold text-destructive border border-destructive/20">
+                        ⚠ {{ errors.permission_ids }}
+                    </p>
+                </FieldError>
+
+                <div class="flex items-center justify-end gap-3 border-t pt-6">
+                    <Button
+                        variant="outline"
+                        type="button"
+                        @click="resetForm()"
+                        class="px-6"
+                    >
+                        Cancelar
+                    </Button>
+                    <Button
+                        type="submit"
+                        class="min-w-[140px] shadow-lg shadow-primary/25"
+                    >
+                        Guardar
+                    </Button>
+                </div>
+            </form>
+        </div>
     </AppLayout>
 </template>

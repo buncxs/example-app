@@ -15,7 +15,7 @@ import {
 // Layouts y UI Components
 import AppLayout from '@/layouts/AppLayout.vue';
 import Heading from '@/components/Heading.vue';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -140,6 +140,7 @@ watch(
 <template>
     <Head title="Editar usuario" />
     <AppLayout :breadcrumbs="breadcrumbs">
+        <div class="mx-auto max-w-5xl">
         <Heading
             :title="`Editar: ${user.name}`"
             description="Modifica la información de la cuenta"
@@ -147,10 +148,15 @@ watch(
 
         <form @submit.prevent="onSubmit">
             <Card>
+                <CardHeader>
+                    <CardTitle class="text-sm font-semibold tracking-wider text-muted-foreground uppercase">
+                        Información General
+                    </CardTitle>
+                </CardHeader>
                 <CardContent class="space-y-4 pt-6">
-                    <div class="grid grid-rows-1 gap-3 md:grid-rows-2">
+                    <div class="grid gap-3">
                         <FieldGroup>
-                            <div class="grid w-full grid-cols-2 gap-4">
+                            <div class="grid w-full grid-cols-1 gap-4 md:grid-cols-2">
                                 <Field>
                                     <FieldLabel for="name"
                                         >Nombre de usuario</FieldLabel
@@ -187,7 +193,7 @@ watch(
                             </div>
                         </FieldGroup>
                         <FieldGroup>
-                            <div class="grid w-full grid-cols-2 gap-4">
+                            <div class="grid w-full grid-cols-1 gap-4 md:grid-cols-2">
                                 <Field>
                                     <FieldLabel for="password"
                                         >Contraseña</FieldLabel
@@ -399,5 +405,6 @@ watch(
                 </Button>
             </div>
         </form>
+        </div>
     </AppLayout>
 </template>
